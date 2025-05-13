@@ -30,6 +30,17 @@
       </select>
     </section>
 
+    <!-- Administrar Categorías -->
+<section id="secCategorias">
+  <h2>Administrar Categorías</h2>
+  <div class="flex">
+    <input type="text" id="inputNuevaCategoria" placeholder="Nueva categoría" />
+    <button id="btnAddCategoria">Agregar Categoría</button>
+  </div>
+  <div id="listaCategorias"></div>
+</section>
+
+    
 <!-- Ingresos -->
 <section id="secIngresos">
   <h2>Definir Ingresos Mensuales</h2>
@@ -71,108 +82,146 @@
   </main>
 
 <script>
-  // Espera a que cargue el DOM
-  document.addEventListener('DOMContentLoaded', () => {
-    // Claves
-    const keyG = 'gastos',
-          keyI = 'ingresos',
-          keyO = 'otrosIngresos',
-          keyH = 'historialMeses',
-          keyM = 'moneda';
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Claves y carga inicial ---
+  const keyG = 'gastos',
+        keyC = 'categorias',
+        keyI = 'ingresos',
+        keyO = 'otrosIngresos',
+        keyH = 'historialMeses',
+        keyM = 'moneda';
+  let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
+  // Cargar categorías default si no existen
+  if (!localStorage.getItem(keyC)) {
+    localStorage.setItem(keyC, JSON.stringify(
+      ["Vivienda","Impuestos y servicios","Vehículo","Otros gastos"]
+    ));
+  }
+  let categorias = JSON.parse(localStorage.getItem(keyC));
+  let ingresos = parseFloat(localStorage.getItem(keyI) || '0');
+  let otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
+  let historial = JSON.parse(localStorage.getItem(keyH) || '[]');
+  let moneda = localStorage.getItem(keyM) || '$';
 
-    // Variables
-    let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
-    let ingresos = parseFloat(localStorage.getItem(keyI) || '0');
-    let otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
-    let historial = JSON.parse(localStorage.getItem(keyH) || '[]');
-    let moneda = localStorage.getItem(keyM) || '$';
+  // --- Elementos del DOM ---
+  const selMon        = document.getElementById('selMoneda');
+  const frameCats     = document.getElementById('listaCategorias');
+  const inputNewCat   = document.getElementById('inputNuevaCategoria');
+  const btnAddCat     = document.getElementById('btnAddCategoria');
+  const selCat        = document.getElementById('categoria');
+  const inpIng        = document.getElementById('inputIngresos');
+  const btnSetIng     = document.getElementById('btnSetIngresos');
+  const inpOtros      = document.getElementById('inputOtrosIngresos');
+  const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
+  const saldoEl       = document.getElementById('saldoRestante');
+  const btnGuardar    = document.getElementById('btnGuardar');
+  const montoInput    = document.getElementById('monto');
+  const subcatInput   = document.getElementById('subcat');
+  const obsInput      = document.getElementById('obs');
 
-    // Elementos
-    const inpIng        = document.getElementById('inputIngresos');
-    const btnSetIngresos= document.getElementById('btnSetIngresos');
-    const inpOtros      = document.getElementById('inputOtrosIngresos');
-    const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
-    const saldoEl       = document.getElementById('saldoRestante');
+  // --- Funciones de refresco ---
+  function refreshMoneda() {
+    selMon.value = moneda;
+  }
+  function refreshCats() {
+    // Combo de registro de gasto
+    selCat.innerHTML = categorias.map(c => `<option>${c}</option>`).join('');
+  }
+  function refreshCatList() {
+    frameCats.innerHTML = categorias.map((c,i) =>
+      `<div class="gasto-item">
+         ${c} <button onclick="deleteCategoria(${i})">❌</button>
+       </div>`
+    ).join('') || '<em>No hay categorías</em>';
+  }
+  function refreshGastos() {
+    document.getElementById('listaGastos').innerHTML =
+      gastos.map(g=>`
+        <div class="gasto-item">
+          ${g.fecha} – ${g.categoria}/${g.subcat}: ${moneda}${parseFloat(g.monto).toFixed(2)}
+        </div>
+      `).join('') || '<em>No hay gastos</em>';
+  }
+  function refreshMeses() {
+    // ...
+  }
+  function refreshSaldo() {
+    const totalG = gastos.reduce((s,g)=>s + parseFloat(g.monto),0);
+    const totalO = otrosIngresos.reduce((s,o)=>s + parseFloat(o),0);
+    const restante = (ingresos + totalO - totalG).toFixed(2);
+    saldoEl.textContent = `${moneda}${restante}`;
+  }
 
-    // Funciones de refresco
-    function refreshSaldo(){
-      const totalGastado = gastos.reduce((s,g) => s + parseFloat(g.monto), 0);
-      const totalOtros   = otrosIngresos.reduce((s,o) => s + parseFloat(o), 0);
-      const restante     = (ingresos + totalOtros - totalGastado).toFixed(2);
-      saldoEl.textContent = `${moneda}${restante}`;
-      console.log('Saldo recalculado:', restante);
-    }
-
-    // Asignar eventos
-    btnSetIngresos.addEventListener('click', () => {
-      console.log('btnSetIngresos click');
-      ingresos = parseFloat(inpIng.value) || 0;
-      localStorage.setItem(keyI, ingresos);
-      inpIng.disabled = true;
-      btnSetIngresos.disabled = true;
-      refreshSaldo();
-    });
-
-    btnAddOtros.addEventListener('click', () => {
-      console.log('btnAddOtrosIngresos click');
-      const o = parseFloat(inpOtros.value) || 0;
-      otrosIngresos.push(o);
-      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-      inpOtros.value = '';
-      refreshSaldo();
-    });
-// Referencias específicas del gasto
-const btnGuardar    = document.getElementById('btnGuardar');
-const montoInput    = document.getElementById('monto');
-const subcatInput   = document.getElementById('subcat');
-const obsInput      = document.getElementById('obs');
-
-// Al cargar la página, deshabilitamos el botón
-btnGuardar.disabled = true;
-
-// Cuando el usuario escriba en Monto o Subcategoría, re-habilitamos el botón
-[montoInput, subcatInput].forEach(el => {
-  el.addEventListener('input', () => {
-    // Solo si hay monto y subcat no vacío
-    if (montoInput.value.trim() !== '' && subcatInput.value.trim() !== '') {
-      btnGuardar.disabled = false;
-    }
-  });
-});
-
-// Manejador de click para grabar el gasto
-btnGuardar.addEventListener('click', () => {
-  // Construimos el objeto gasto
-  const g = {
-    fecha:    document.getElementById('fecha').value,
-    monto:    montoInput.value,
-    categoria: document.getElementById('categoria').value,
-    subcat:   subcatInput.value,
-    obs:      obsInput.value
+  // --- Eventos ABM Categorías ---
+  window.deleteCategoria = idx => {
+    categorias.splice(idx,1);
+    localStorage.setItem(keyC, JSON.stringify(categorias));
+    refreshCats(); refreshCatList();
   };
+  btnAddCat.addEventListener('click', () => {
+    const n = inputNewCat.value.trim();
+    if (!n) return alert('Ingresa un nombre de categoría');
+    categorias.push(n);
+    localStorage.setItem(keyC, JSON.stringify(categorias));
+    inputNewCat.value = '';
+    refreshCats(); refreshCatList();
+  });
 
-  // Lo insertamos y guardamos
-  gastos.unshift(g);
-  localStorage.setItem(keyG, JSON.stringify(gastos));
+  // --- Eventos Moneda ---
+  selMon.addEventListener('change', () => {
+    moneda = selMon.value;
+    localStorage.setItem(keyM, moneda);
+    refreshGastos(); refreshSaldo(); refreshMeses();
+  });
 
-  // Actualizamos la UI
-  refreshGastos();
-  refreshSaldo();
-
-  // Limpiamos todos los campos excepto la fecha
-  montoInput.value  = '';
-  subcatInput.value = '';
-  obsInput.value    = '';
-
-  // Deshabilitamos de nuevo el botón hasta nueva entrada
-  btnGuardar.disabled = true;
-});
-
-    // Inicializar pantalla
-    inpIng.value = ingresos || '';
+  // --- Eventos Ingresos y Otros ---
+  btnSetIng.addEventListener('click', () => {
+    ingresos = parseFloat(inpIng.value) || 0;
+    localStorage.setItem(keyI, ingresos);
+    inpIng.disabled = true; btnSetIng.disabled = true;
     refreshSaldo();
   });
+  btnAddOtros.addEventListener('click', () => {
+    const o = parseFloat(inpOtros.value) || 0;
+    otrosIngresos.push(o);
+    localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+    inpOtros.value = '';
+    refreshSaldo();
+  });
+
+  // --- Eventos Guardar Gasto con limpieza e inhabilitación ---
+  btnGuardar.disabled = true;
+  [montoInput, subcatInput].forEach(el => {
+    el.addEventListener('input', () => {
+      btnGuardar.disabled = !(montoInput.value && subcatInput.value);
+    });
+  });
+  btnGuardar.addEventListener('click', () => {
+    const g = {
+      fecha:    document.getElementById('fecha').value,
+      monto:    montoInput.value,
+      categoria: selCat.value,
+      subcat:   subcatInput.value,
+      obs:      obsInput.value
+    };
+    gastos.unshift(g);
+    localStorage.setItem(keyG, JSON.stringify(gastos));
+    refreshGastos(); refreshSaldo();
+    // limpieza de campos
+    montoInput.value = '';
+    subcatInput.value = '';
+    obsInput.value = '';
+    btnGuardar.disabled = true;
+  });
+
+  // --- Inicialización UI ---
+  refreshMoneda();
+  if (!ingresos) inpIng.value = '';
+  refreshCats(); refreshCatList();
+  refreshGastos(); refreshSaldo(); // y refreshMeses si la usas
+});
 </script>
+
 
 </body>
 </html>
