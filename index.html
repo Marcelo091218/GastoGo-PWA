@@ -70,126 +70,63 @@
     </section>
   </main>
 
-  <script>
+<script>
+  // Espera a que cargue el DOM
+  document.addEventListener('DOMContentLoaded', () => {
     // Claves
-    const keyG = 'gastos', keyC = 'categorias', keyI = 'ingresos', keyH = 'historialMeses', keyM = 'moneda';
+    const keyG = 'gastos',
+          keyI = 'ingresos',
+          keyO = 'otrosIngresos',
+          keyH = 'historialMeses',
+          keyM = 'moneda';
 
-    // Carga inicial
+    // Variables
     let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
-    let categorias = JSON.parse(localStorage.getItem(keyC) || '["General"]');
     let ingresos = parseFloat(localStorage.getItem(keyI) || '0');
-    let otrosIngresos = JSON.parse(localStorage.getItem('otrosIngresos') || '[]');
+    let otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
     let historial = JSON.parse(localStorage.getItem(keyH) || '[]');
     let moneda = localStorage.getItem(keyM) || '$';
 
     // Elementos
-    const selMon = document.getElementById('selMoneda');
-    const selCat = document.getElementById('categoria');
-    const saldoEl = document.getElementById('saldoRestante');
-    const inpIng = document.getElementById('inputIngresos');
+    const inpIng        = document.getElementById('inputIngresos');
+    const btnSetIngresos= document.getElementById('btnSetIngresos');
+    const inpOtros      = document.getElementById('inputOtrosIngresos');
+    const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
+    const saldoEl       = document.getElementById('saldoRestante');
 
-    // Renders
-    function refreshMoneda(){
-      selMon.value = moneda;
-    }
-    function refreshCats(){
-      selCat.innerHTML = categorias.map(c=>`<option>${c}</option>`).join('');
-    }
-    function refreshList(){
-      document.getElementById('listaGastos').innerHTML =
-        gastos.map((g,i)=>`
-          <div class="gasto-item">
-            ${g.fecha} – ${g.categoria}/${g.subcat}: ${moneda}${parseFloat(g.monto).toFixed(2)}
-          </div>
-        `).join('') || '<em>No hay gastos</em>';
-    }
+    // Funciones de refresco
     function refreshSaldo(){
-  const totalGastado = gastos.reduce((s,g)=>s + parseFloat(g.monto),0);
-  const totalOtros   = otrosIngresos.reduce((s,o)=>s + parseFloat(o),0);
-  const restante     = (ingresos + totalOtros - totalGastado).toFixed(2);
-  document.getElementById('saldoRestante').textContent = `${moneda}${restante}`;
-}
-
-    function refreshMeses(){
-      document.getElementById('listaMeses').innerHTML =
-        historial.map((m,i)=> {
-          const gastado = m.gastos.reduce((s,g)=>s + parseFloat(g.monto),0);
-          const saldo = (m.ingresos - gastado).toFixed(2);
-          return `
-          <div class="hist-item">
-            <strong>${new Date(m.fecha).toLocaleDateString()}</strong><br>
-            Ingresos: ${moneda}${m.ingresos.toFixed(2)} | Gastos: ${moneda}${gastado.toFixed(2)} | Saldo: ${moneda}${saldo}
-            <button onclick="borrarMes(${i})">Eliminar</button>
-          </div>`;
-        }).join('') || '<em>No hay meses finalizados</em>';
+      const totalGastado = gastos.reduce((s,g) => s + parseFloat(g.monto), 0);
+      const totalOtros   = otrosIngresos.reduce((s,o) => s + parseFloat(o), 0);
+      const restante     = (ingresos + totalOtros - totalGastado).toFixed(2);
+      saldoEl.textContent = `${moneda}${restante}`;
+      console.log('Saldo recalculado:', restante);
     }
-    // Inicializa UI
-    refreshMoneda(); refreshCats(); refreshList(); refreshSaldo(); refreshMeses();
 
-    // Eventos
-    selMon.onchange = ()=>{
-      moneda = selMon.value;
-      localStorage.setItem(keyM, moneda);
-      refreshList(); refreshSaldo(); refreshMeses();
-    };
-// Guardar ingresos iniciales y bloquear edición
-document.getElementById('btnSetIngresos').onclick = () => {
-  ingresos = parseFloat(inpIng.value) || 0;
-  localStorage.setItem('ingresos', ingresos);
-  inpIng.disabled = true;
-  document.getElementById('btnSetIngresos').disabled = true;
-  refreshSaldo();
-};
+    // Asignar eventos
+    btnSetIngresos.addEventListener('click', () => {
+      console.log('btnSetIngresos click');
+      ingresos = parseFloat(inpIng.value) || 0;
+      localStorage.setItem(keyI, ingresos);
+      inpIng.disabled = true;
+      btnSetIngresos.disabled = true;
+      refreshSaldo();
+    });
 
-// Agregar “Otros Ingresos”
-document.getElementById('btnAddOtrosIngresos').onclick = () => {
-  const o = parseFloat(document.getElementById('inputOtrosIngresos').value) || 0;
-  otrosIngresos.push(o);
-  localStorage.setItem('otrosIngresos', JSON.stringify(otrosIngresos));
-  document.getElementById('inputOtrosIngresos').value = '';
-  refreshSaldo();
-};
+    btnAddOtros.addEventListener('click', () => {
+      console.log('btnAddOtrosIngresos click');
+      const o = parseFloat(inpOtros.value) || 0;
+      otrosIngresos.push(o);
+      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+      inpOtros.value = '';
+      refreshSaldo();
+    });
 
-      // mantiene fecha del input
-    };
-    document.getElementById('btnGuardar').onclick = ()=>{
-      const g = {
-        fecha: document.getElementById('fecha').value,
-        monto: document.getElementById('monto').value,
-        categoria: selCat.value,
-        subcat: document.getElementById('subcat').value,
-        obs: document.getElementById('obs').value
-      };
-      gastos.unshift(g);
-      localStorage.setItem(keyG, JSON.stringify(gastos));
-      refreshList(); refreshSaldo();
-      // limpia solo campos de texto
-      document.getElementById('monto').value = '';
-      document.getElementById('subcat').value = '';
-      document.getElementById('obs').value = '';
-    };
-document.getElementById('btnFinalizarMes').onclick = () => {
-  historial.unshift({ ingresos, otrosIngresos, gastos, fecha: new Date().toISOString() });
-  localStorage.setItem('historialMeses', JSON.stringify(historial));
-  // Reset mensual
-  gastos = []; ingresos = 0; otrosIngresos = [];
-  localStorage.removeItem('gastos');
-  localStorage.removeItem('ingresos');
-  localStorage.removeItem('otrosIngresos');
-  inpIng.value = ''; inpIng.disabled = false;
-  document.getElementById('btnSetIngresos').disabled = false;
-  refreshGastos();
-  refreshMeses();
-  refreshSaldo();
-  alert('Mes finalizado y guardado en historial.');
-};
+    // Inicializar pantalla
+    inpIng.value = ingresos || '';
+    refreshSaldo();
+  });
+</script>
 
-    function borrarMes(idx){
-      if(!confirm('Eliminar mes de historial?')) return;
-      historial.splice(idx,1);
-      localStorage.setItem(keyH, JSON.stringify(historial));
-      refreshMeses();
-    }
-  </script>
 </body>
 </html>
