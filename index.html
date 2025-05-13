@@ -29,35 +29,60 @@
   </main>
 
   <script>
-    // Manejo básico de gastos en localStorage
-    const keyG = 'gastos';
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. Claves y carga inicial ---
+    const keyG = 'gastos',
+          keyC = 'categorias';
     let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
 
+    // Carga categorías por defecto si no existen
+    if (!localStorage.getItem(keyC)) {
+      localStorage.setItem(keyC, JSON.stringify([
+        "Vivienda",
+        "Impuestos y servicios",
+        "Vehículo",
+        "Otros gastos"
+      ]));
+    }
+    let categorias = JSON.parse(localStorage.getItem(keyC));
+
+    // Referencias al DOM
+    const selCat     = document.getElementById('categoria');
+    const btnGuardar = document.getElementById('btnGuardar');
+
+    // --- 2. Funciones de refresco ---
+    function refreshCategories() {
+      selCat.innerHTML = categorias
+        .map(c => `<option value="${c}">${c}</option>`)
+        .join('');
+    }
     function refreshList() {
-      const html = gastos.map(g => 
+      const html = gastos.map(g =>
         `<div class="gasto-item">
-           ${g.fecha} – ${g.categoria}/${g.subcat}: $${g.monto}
-         </div>`
+          ${g.fecha} – ${g.categoria}/${g.subcat}: $${g.monto}
+        </div>`
       ).join('');
       document.getElementById('listaGastos').innerHTML = html || '<em>No hay gastos</em>';
     }
 
-    document.getElementById('btnGuardar').addEventListener('click', () => {
+    // --- 3. Eventos ---
+    btnGuardar.addEventListener('click', () => {
       const g = {
-        fecha:    document.getElementById('fecha').value,
-        monto:    document.getElementById('monto').value,
-        categoria: document.getElementById('categoria').value,
-        subcat:   document.getElementById('subcat').value
+        fecha:     document.getElementById('fecha').value,
+        monto:     document.getElementById('monto').value,
+        categoria: selCat.value,
+        subcat:    document.getElementById('subcat').value
       };
       gastos.unshift(g);
       localStorage.setItem(keyG, JSON.stringify(gastos));
       refreshList();
     });
 
-    // Al cargar, refresca todo
-    document.addEventListener('DOMContentLoaded', () => {
-      refreshList();
-    });
-  </script>
+    // --- 4. Inicialización ---
+    refreshCategories();
+    refreshList();
+  });
+</script>
+
 </body>
 </html>
