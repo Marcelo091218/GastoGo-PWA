@@ -60,6 +60,10 @@
     const keyG = 'gastos',
           keyC = 'categorias';
     let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
+    // Clave y valor de moneda
+    const keyM = 'moneda';
+    let moneda = localStorage.getItem(keyM) || '$';
+
 
     // Carga categorías por defecto si no existen
     if (!localStorage.getItem(keyC)) {
@@ -122,6 +126,51 @@ btnDelCat.addEventListener('click', () => {
     refreshCategories();
   }
 });
+
+        // --- Sección Ingresos y Saldo ---
+    const inpIngresos    = document.getElementById('inputIngresos');
+    const btnSetIngresos = document.getElementById('btnSetIngresos');
+    const inpOtros      = document.getElementById('inputOtrosIngresos');
+    const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
+    const saldoEl       = document.getElementById('saldoRestante');
+
+    // Claves para storage
+    const keyI = 'ingresos';
+    const keyO = 'otrosIngresos';
+
+    // Carga inicial de ingresos
+    let ingresos      = parseFloat(localStorage.getItem(keyI) || '0');
+    let otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
+
+    // Función para recalcular y mostrar el saldo
+    function refreshSaldo() {
+      const totalG = gastos.reduce((sum, g) => sum + parseFloat(g.monto), 0);
+      const totalO = otrosIngresos.reduce((sum, o) => sum + parseFloat(o), 0);
+      const restante = (ingresos + totalO - totalG).toFixed(2);
+      saldoEl.textContent = `${moneda}${restante}`;
+    }
+
+    // Inicialización de inputs y saldo
+    inpIngresos.value = ingresos || '';
+    refreshSaldo();
+
+    //  Guardar ingreso base y bloquear edición
+    btnSetIngresos.addEventListener('click', () => {
+      ingresos = parseFloat(inpIngresos.value) || 0;
+      localStorage.setItem(keyI, ingresos);
+      inpIngresos.disabled = true;
+      btnSetIngresos.disabled = true;
+      refreshSaldo();
+    });
+
+    // Agregar “Otros Ingresos”
+    btnAddOtros.addEventListener('click', () => {
+      const o = parseFloat(inpOtros.value) || 0;
+      otrosIngresos.push(o);
+      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+      inpOtros.value = '';
+      refreshSaldo();
+    });
 
     
     // Llamamos al refresco inicial
