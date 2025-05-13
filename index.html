@@ -15,7 +15,25 @@
 </head>
 <body>
   <header><h1>GastoGo</h1></header>
-  <main>
+  <main> 
+
+        <!-- Ingresos -->
+    <section id="secIngresos">
+      <h2>Definir Ingresos</h2>
+      <div class="flex" style="align-items:center">
+        <input type="number" id="inputIngresos" placeholder="Monto de ingresos" />
+        <button id="btnSetIngresos" style="margin-left:8px">Guardar</button>
+      </div>
+      <div class="flex" style="align-items:center">
+        <input type="number" id="inputOtrosIngresos" placeholder="Otros ingresos" />
+        <button id="btnAddOtrosIngresos" style="margin-left:8px">Agregar Otros</button>
+      </div>
+      <div class="saldo">
+        Saldo restante: <span id="saldoRestante">$0.00</span>
+      </div>
+    </section>
+
+    
     <h2>Registrar gasto</h2>
     <input type="date" id="fecha" />
     <input type="number" id="monto" placeholder="Monto" />
