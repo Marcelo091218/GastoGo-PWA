@@ -46,6 +46,18 @@
         "Otros gastos"
       ]));
     }
+
+    if (!categorias || categorias.length === 0) {
+      categorias = [
+       "Vivienda",
+       "Impuestos y servicios",
+       "Vehículo",
+       "Otros gastos"
+     ];
+    localStorage.setItem(keyC, JSON.stringify(categorias));
+    }
+
+    
     let categorias = JSON.parse(localStorage.getItem(keyC));
 
     // Referencias al DOM
