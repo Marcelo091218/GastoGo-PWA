@@ -19,9 +19,15 @@
     <h2>Registrar gasto</h2>
     <input type="date" id="fecha" />
     <input type="number" id="monto" placeholder="Monto" />
+    
+  <div class="flex" style="align-items:center">
     <select id="categoria">
       <option disabled selected value="">-- Seleccionar categoría --</option>
     </select>
+    <button id="btnAddCat" title="Agregar categoría" style="margin-left:8px">+</button>
+    <button id="btnDelCat" title="Eliminar categoría" style="margin-left:4px">–</button>
+  </div>
+
     <input type="text" id="subcat" placeholder="Subcategoría" />
     <textarea id="obs" placeholder="Observaciones"></textarea>
     <button id="btnGuardar">Guardar Gasto</button>
@@ -68,6 +74,38 @@
       `;
     }
 
+    // Referencias a los botones
+const btnAddCat = document.getElementById('btnAddCat');
+const btnDelCat = document.getElementById('btnDelCat');
+
+// Agregar nueva categoría con prompt
+btnAddCat.addEventListener('click', () => {
+  const nueva = prompt('Nombre de la nueva categoría:');
+  if (!nueva) return;
+  const trimCat = nueva.trim();
+  if (categorias.includes(trimCat)) {
+    alert('La categoría ya existe.');
+  } else {
+    categorias.push(trimCat);
+    localStorage.setItem(keyC, JSON.stringify(categorias));
+    refreshCategories();
+    // Seleccionamos la nueva categoría
+    document.getElementById('categoria').value = trimCat;
+  }
+});
+
+// Eliminar categoría seleccionada
+btnDelCat.addEventListener('click', () => {
+  const actual = document.getElementById('categoria').value;
+  if (!actual) return alert('Selecciona primero una categoría.');
+  if (confirm(`¿Eliminar la categoría "${actual}"?`)) {
+    categorias = categorias.filter(c => c !== actual);
+    localStorage.setItem(keyC, JSON.stringify(categorias));
+    refreshCategories();
+  }
+});
+
+    
     // Llamamos al refresco inicial
     refreshCategories();
 
