@@ -46,20 +46,31 @@
         "Otros gastos"
       ]));
     }
- 
-    let categorias = JSON.parse(localStorage.getItem(keyC));
+     // --- FORZAR CATEGORÍAS POR DEFECTO ---
+    const defaultCats = [
+      "Vivienda",
+      "Impuestos y servicios",
+      "Vehículo",
+      "Otros gastos"
+    ];
+    // Siempre reiniciamos a esos valores
+    localStorage.setItem(keyC, JSON.stringify(defaultCats));
+    let categorias = [...defaultCats];
 
-    // Referencias al DOM
-    const selCat     = document.getElementById('categoria');
-    const btnGuardar = document.getElementById('btnGuardar');
+    // Referencia al combo
+    const selCat = document.getElementById('categoria');
 
+    // Función para poblar el combo
     function refreshCategories() {
-  // Mantenemos el placeholder y luego agregamos las categorías
-  selCat.innerHTML = `
-    <option disabled selected value="">-- Seleccionar categoría --</option>
-    ${categorias.map(c => `<option value="${c}">${c}</option>`).join('')}
-  `;
+      selCat.innerHTML = `
+        <option disabled selected value="">-- Seleccionar categoría --</option>
+        ${categorias.map(c => `<option value="${c}">${c}</option>`).join('')}
+      `;
     }
+
+    // Llamamos al refresco inicial
+    refreshCategories();
+
 
     function refreshList() {
       const html = gastos.map(g =>
