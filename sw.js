@@ -1,5 +1,5 @@
 const CACHE_NAME = 'gasto-go-v1';
-const urlsToCache = ['.', 'index.html', 'manifest.json', 'assets/icon-192.png'];
+const urlsToCache = ['.', 'index.html', 'manifest.json', 'icon-192.png'];
 
 self.addEventListener('install', e=>{
   e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache)));
