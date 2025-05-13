@@ -19,7 +19,9 @@
     <h2>Registrar gasto</h2>
     <input type="date" id="fecha" />
     <input type="number" id="monto" placeholder="Monto" />
-    <select id="categoria"></select>
+    <select id="categoria">
+      <option disabled selected value="">-- Seleccionar categoría --</option>
+    </select>
     <input type="text" id="subcat" placeholder="Subcategoría" />
     <textarea id="obs" placeholder="Observaciones"></textarea>
     <button id="btnGuardar">Guardar Gasto</button>
@@ -50,12 +52,14 @@
     const selCat     = document.getElementById('categoria');
     const btnGuardar = document.getElementById('btnGuardar');
 
-    // --- 2. Funciones de refresco ---
     function refreshCategories() {
-      selCat.innerHTML = categorias
-        .map(c => `<option value="${c}">${c}</option>`)
-        .join('');
+  // Mantenemos el placeholder y luego agregamos las categorías
+  selCat.innerHTML = `
+    <option disabled selected value="">-- Seleccionar categoría --</option>
+    ${categorias.map(c => `<option value="${c}">${c}</option>`).join('')}
+  `;
     }
+
     function refreshList() {
       const html = gastos.map(g =>
         `<div class="gasto-item">
