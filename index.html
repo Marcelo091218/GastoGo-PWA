@@ -29,17 +29,6 @@
         <option value="USD">USD</option>
       </select>
     </section>
-
-    <!-- Administrar Categorías -->
-<section id="secCategorias">
-  <h2>Administrar Categorías</h2>
-  <div class="flex">
-    <input type="text" id="inputNuevaCategoria" placeholder="Nueva categoría" />
-    <button id="btnAddCategoria">Agregar Categoría</button>
-  </div>
-  <div id="listaCategorias"></div>
-</section>
-
     
 <!-- Ingresos -->
 <section id="secIngresos">
@@ -57,16 +46,21 @@
 </section>
 
 
-    <!-- Registrar Gasto -->
-    <section id="secGastos">
-      <h2>Registrar Gasto</h2>
-      <input type="date" id="fecha" />
-      <input type="number" id="monto" placeholder="Monto" />
-      <select id="categoria"></select>
-      <input type="text" id="subcat" placeholder="Subcategoría" />
-      <textarea id="obs" placeholder="Observaciones"></textarea>
-      <button id="btnGuardar">Guardar Gasto</button>
-    </section>
+<!-- Registrar Gasto -->
+<section id="secGastos">
+  <h2>Registrar Gasto</h2>
+  <input type="date" id="fecha" />
+  <input type="number" id="monto" placeholder="Monto" />
+  <div class="flex">
+    <select id="categoria"></select>
+    <button id="btnAddCat" title="Agregar categoría">+</button>
+    <button id="btnDelCat" title="Eliminar categoría">–</button>
+  </div>
+  <input type="text" id="subcat" placeholder="Subcategoría" />
+  <textarea id="obs" placeholder="Observaciones"></textarea>
+  <button id="btnGuardar">Guardar Gasto</button>
+</section>
+
 
     <!-- Historial de Gastos -->
     <section id="secHistorial">
@@ -152,20 +146,48 @@ document.addEventListener('DOMContentLoaded', () => {
     saldoEl.textContent = `${moneda}${restante}`;
   }
 
-  // --- Eventos ABM Categorías ---
-  window.deleteCategoria = idx => {
-    categorias.splice(idx,1);
+// Referencias
+const selCat    = document.getElementById('categoria');
+const btnAddCat = document.getElementById('btnAddCat');
+const btnDelCat = document.getElementById('btnDelCat');
+
+// Si no hay categorías guardadas, cargamos las por defecto
+if (!localStorage.getItem(keyC)) {
+  categorias = ["Vivienda","Impuestos y servicios","Vehículo","Otros gastos"];
+  localStorage.setItem(keyC, JSON.stringify(categorias));
+} else {
+  categorias = JSON.parse(localStorage.getItem(keyC));
+}
+
+// Refresca el combo de categorías
+function refreshCats(){
+  selCat.innerHTML = categorias
+    .map(c => `<option value="${c}">${c}</option>`)
+    .join('');
+}
+refreshCats();
+
+// Agregar nueva categoría
+btnAddCat.addEventListener('click', () => {
+  const nuevo = prompt('Nueva categoría:');
+  if (nuevo && !categorias.includes(nuevo.trim())) {
+    categorias.push(nuevo.trim());
     localStorage.setItem(keyC, JSON.stringify(categorias));
-    refreshCats(); refreshCatList();
-  };
-  btnAddCat.addEventListener('click', () => {
-    const n = inputNewCat.value.trim();
-    if (!n) return alert('Ingresa un nombre de categoría');
-    categorias.push(n);
+    refreshCats();
+    selCat.value = nuevo.trim();
+  }
+});
+
+// Eliminar categoría seleccionada
+btnDelCat.addEventListener('click', () => {
+  const actual = selCat.value;
+  if (confirm(`¿Eliminar "${actual}"?`)) {
+    categorias = categorias.filter(c => c !== actual);
     localStorage.setItem(keyC, JSON.stringify(categorias));
-    inputNewCat.value = '';
-    refreshCats(); refreshCatList();
-  });
+    refreshCats();
+  }
+});
+
 
   // --- Eventos Moneda ---
   selMon.addEventListener('change', () => {
