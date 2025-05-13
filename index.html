@@ -64,6 +64,14 @@
     const keyM = 'moneda';
     let moneda = localStorage.getItem(keyM) || '$';
 
+   // --- Claves y carga inicial de ingresos, otros ingresos y moneda ---
+     const keyI = 'ingresos',
+        keyO = 'otrosIngresos',
+        keyM = 'moneda';
+      let ingresos      = parseFloat(localStorage.getItem(keyI)) || 0;
+      let otrosIngresos = JSON.parse(localStorage.getItem(keyO)) || [];
+      let moneda        = localStorage.getItem(keyM) || '$';
+
 
     // Carga categorías por defecto si no existen
     if (!localStorage.getItem(keyC)) {
@@ -144,11 +152,25 @@ btnDelCat.addEventListener('click', () => {
 
     // Función para recalcular y mostrar el saldo
     function refreshSaldo() {
-      const totalG = gastos.reduce((sum, g) => sum + parseFloat(g.monto), 0);
-      const totalO = otrosIngresos.reduce((sum, o) => sum + parseFloat(o), 0);
-      const restante = (ingresos + totalO - totalG).toFixed(2);
-      saldoEl.textContent = `${moneda}${restante}`;
-    }
+    // Suma todos los montos de gastos, ignorando NaN
+    const totalG = gastos.reduce((sum, g) => {
+      const val = parseFloat(g.monto);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+
+    // Suma todos los “otros ingresos”, ignorando NaN
+    const totalO = otrosIngresos.reduce((sum, o) => {
+      const val = parseFloat(o);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+
+    // Cálculo final: ingresos base + otros - gastos
+    const restante = ((parseFloat(ingresos) || 0) + totalO - totalG).toFixed(2);
+
+    // Actualiza en pantalla
+    document.getElementById('saldoRestante').textContent = `${moneda}${restante}`;
+  }
+
 
     // Inicialización de inputs y saldo
     inpIngresos.value = ingresos || '';
@@ -197,6 +219,7 @@ btnDelCat.addEventListener('click', () => {
       gastos.unshift(g);
       localStorage.setItem(keyG, JSON.stringify(gastos));
       refreshList();
+      refreshSaldo();
     });
 
     // --- 4. Inicialización ---
