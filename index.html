@@ -30,16 +30,21 @@
       </select>
     </section>
 
-    <!-- Ingresos -->
-    <section id="secIngresos">
-      <h2>Definir Ingresos Mensuales</h2>
-      <div class="flex">
-        <input type="number" id="inputIngresos" placeholder="Monto de ingresos" />
-        <button id="btnSetIngresos">Guardar</button>
-      </div>
-      <div class="saldo">Saldo restante: <span id="saldoRestante"></span></div>
-      <button id="btnFinalizarMes">Finalizar Mes</button>
-    </section>
+<!-- Ingresos -->
+<section id="secIngresos">
+  <h2>Definir Ingresos Mensuales</h2>
+  <div class="flex">
+    <input type="number" id="inputIngresos" placeholder="Monto de ingresos" />
+    <button id="btnSetIngresos">Guardar</button>
+  </div>
+  <div class="flex">
+    <input type="number" id="inputOtrosIngresos" placeholder="Otros ingresos" />
+    <button id="btnAddOtrosIngresos">Agregar Otros Ingresos</button>
+  </div>
+  <div class="saldo">Saldo restante: <span id="saldoRestante"></span></div>
+  <button id="btnFinalizarMes">Finalizar Mes</button>
+</section>
+
 
     <!-- Registrar Gasto -->
     <section id="secGastos">
@@ -73,6 +78,7 @@
     let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
     let categorias = JSON.parse(localStorage.getItem(keyC) || '["General"]');
     let ingresos = parseFloat(localStorage.getItem(keyI) || '0');
+    let otrosIngresos = JSON.parse(localStorage.getItem('otrosIngresos') || '[]');
     let historial = JSON.parse(localStorage.getItem(keyH) || '[]');
     let moneda = localStorage.getItem(keyM) || '$';
 
@@ -98,10 +104,12 @@
         `).join('') || '<em>No hay gastos</em>';
     }
     function refreshSaldo(){
-      const total = gastos.reduce((sum,g)=>sum + parseFloat(g.monto), 0);
-      const restante = (ingresos - total).toFixed(2);
-      saldoEl.textContent = `${moneda}${restante}`;
-    }
+  const totalGastado = gastos.reduce((s,g)=>s + parseFloat(g.monto),0);
+  const totalOtros   = otrosIngresos.reduce((s,o)=>s + parseFloat(o),0);
+  const restante     = (ingresos + totalOtros - totalGastado).toFixed(2);
+  document.getElementById('saldoRestante').textContent = `${moneda}${restante}`;
+}
+
     function refreshMeses(){
       document.getElementById('listaMeses').innerHTML =
         historial.map((m,i)=> {
@@ -124,10 +132,24 @@
       localStorage.setItem(keyM, moneda);
       refreshList(); refreshSaldo(); refreshMeses();
     };
-    document.getElementById('btnSetIngresos').onclick = ()=>{
-      ingresos = parseFloat(inpIng.value) || 0;
-      localStorage.setItem(keyI, ingresos);
-      refreshSaldo();
+// Guardar ingresos iniciales y bloquear edición
+document.getElementById('btnSetIngresos').onclick = () => {
+  ingresos = parseFloat(inpIng.value) || 0;
+  localStorage.setItem('ingresos', ingresos);
+  inpIng.disabled = true;
+  document.getElementById('btnSetIngresos').disabled = true;
+  refreshSaldo();
+};
+
+// Agregar “Otros Ingresos”
+document.getElementById('btnAddOtrosIngresos').onclick = () => {
+  const o = parseFloat(document.getElementById('inputOtrosIngresos').value) || 0;
+  otrosIngresos.push(o);
+  localStorage.setItem('otrosIngresos', JSON.stringify(otrosIngresos));
+  document.getElementById('inputOtrosIngresos').value = '';
+  refreshSaldo();
+};
+
       // mantiene fecha del input
     };
     document.getElementById('btnGuardar').onclick = ()=>{
@@ -146,14 +168,22 @@
       document.getElementById('subcat').value = '';
       document.getElementById('obs').value = '';
     };
-    document.getElementById('btnFinalizarMes').onclick = ()=>{
-      historial.unshift({ ingresos, gastos, fecha: new Date().toISOString() });
-      localStorage.setItem(keyH, JSON.stringify(historial));
-      gastos=[]; ingresos=0;
-      localStorage.removeItem(keyG); localStorage.removeItem(keyI);
-      refreshList(); refreshSaldo(); refreshMeses();
-      inpIng.value=''; alert('Mes finalizado y guardado en historial.');
-    };
+document.getElementById('btnFinalizarMes').onclick = () => {
+  historial.unshift({ ingresos, otrosIngresos, gastos, fecha: new Date().toISOString() });
+  localStorage.setItem('historialMeses', JSON.stringify(historial));
+  // Reset mensual
+  gastos = []; ingresos = 0; otrosIngresos = [];
+  localStorage.removeItem('gastos');
+  localStorage.removeItem('ingresos');
+  localStorage.removeItem('otrosIngresos');
+  inpIng.value = ''; inpIng.disabled = false;
+  document.getElementById('btnSetIngresos').disabled = false;
+  refreshGastos();
+  refreshMeses();
+  refreshSaldo();
+  alert('Mes finalizado y guardado en historial.');
+};
+
     function borrarMes(idx){
       if(!confirm('Eliminar mes de historial?')) return;
       historial.splice(idx,1);
