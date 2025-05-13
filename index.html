@@ -121,6 +121,52 @@
       inpOtros.value = '';
       refreshSaldo();
     });
+// Referencias específicas del gasto
+const btnGuardar    = document.getElementById('btnGuardar');
+const montoInput    = document.getElementById('monto');
+const subcatInput   = document.getElementById('subcat');
+const obsInput      = document.getElementById('obs');
+
+// Al cargar la página, deshabilitamos el botón
+btnGuardar.disabled = true;
+
+// Cuando el usuario escriba en Monto o Subcategoría, re-habilitamos el botón
+[montoInput, subcatInput].forEach(el => {
+  el.addEventListener('input', () => {
+    // Solo si hay monto y subcat no vacío
+    if (montoInput.value.trim() !== '' && subcatInput.value.trim() !== '') {
+      btnGuardar.disabled = false;
+    }
+  });
+});
+
+// Manejador de click para grabar el gasto
+btnGuardar.addEventListener('click', () => {
+  // Construimos el objeto gasto
+  const g = {
+    fecha:    document.getElementById('fecha').value,
+    monto:    montoInput.value,
+    categoria: document.getElementById('categoria').value,
+    subcat:   subcatInput.value,
+    obs:      obsInput.value
+  };
+
+  // Lo insertamos y guardamos
+  gastos.unshift(g);
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+
+  // Actualizamos la UI
+  refreshGastos();
+  refreshSaldo();
+
+  // Limpiamos todos los campos excepto la fecha
+  montoInput.value  = '';
+  subcatInput.value = '';
+  obsInput.value    = '';
+
+  // Deshabilitamos de nuevo el botón hasta nueva entrada
+  btnGuardar.disabled = true;
+});
 
     // Inicializar pantalla
     inpIng.value = ingresos || '';
