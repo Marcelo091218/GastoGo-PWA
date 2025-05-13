@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GastoGo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: sans-serif; margin:0; padding:0; }
+    header { background:#4CAF50; color:#fff; padding:1rem; text-align:center; }
+    main { padding:1rem; }
+    input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
+    .gastos { margin-top:2rem; }
+    .gasto-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
+  </style>
+</head>
+<body>
+  <header><h1>GastoGo</h1></header>
+  <main>
+    <h2>Registrar gasto</h2>
+    <input type="date" id="fecha" />
+    <input type="number" id="monto" placeholder="Monto" />
+    <select id="categoria"></select>
+    <input type="text" id="subcat" placeholder="Subcategoría" />
+    <textarea id="obs" placeholder="Observaciones"></textarea>
+    <button id="btnGuardar">Guardar</button>
+
+    <h2 class="gastos">Historial</h2>
+    <div id="listaGastos"></div>
+  </main>
+
+  <script>
+    const keyG = 'gastos', keyC = 'categorias';
+    let gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
+    let categorias = JSON.parse(localStorage.getItem(keyC) || '["General"]');
+    const sel = document.getElementById('categoria');
+
+    function refreshCats() {
+      sel.innerHTML = categorias.map(c => `<option>${c}</option>`).join('');
+    }
+    function refreshList() {
+      document.getElementById('listaGastos').innerHTML =
+        gastos.map(g => `
+          <div class="gasto-item">
+            ${g.fecha} – ${g.categoria}/${g.subcat}: $${g.monto}
+          </div>
+        `).join('');
+    }
+    refreshCats();
+    refreshList();
+
+    document.getElementById('btnGuardar').onclick = () => {
+      const g = {
+        fecha: document.getElementById('fecha').value,
+        monto: document.getElementById('monto').value,
+        categoria: sel.value,
+        subcat: document.getElementById('subcat').value,
+        obs: document.getElementById('obs').value
+      };
+      gastos.unshift(g);
+      localStorage.setItem(keyG, JSON.stringify(gastos));
+      refreshList();
+    };
+  </script>
+</body>
+</html>
