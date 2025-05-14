@@ -109,7 +109,7 @@
     inpIngresos.value = ingresos;
     refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
-    // Formateo en blur/focus para campos numéricos
+ // Formateo en blur/focus para campos numéricos
 function formatNumber(val) {
   // Convertir coma a punto y remover puntos
   var num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
@@ -133,13 +133,6 @@ function formatNumber(val) {
   });
 });
     
-    btnSetIngresos.addEventListener('click', () => {
-      ingresos = parseFloat(inpIngresos.value) || 0;
-      localStorage.setItem(keyI, ingresos);
-      inpIngresos.disabled = true;
-      btnSetIngresos.disabled = true;
-      refreshSaldo();
-    });
     btnAddOtros.addEventListener('click', () => {
       const o = parseFloat(inpOtros.value) || 0;
       otrosIngresos.push(o);
