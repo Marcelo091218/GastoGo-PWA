@@ -57,6 +57,16 @@
   <script>
   document.addEventListener('DOMContentLoaded', () => {
       console.log('✅ GastoGo script arrancó');
+// --- Claves y carga inicial ---
+const keyG = 'gastos',
+      keyC = 'categorias',
+      keyI = 'ingresos',
+      keyO = 'otrosIngresos',
+      keyM = 'moneda';
+let gastos         = JSON.parse(localStorage.getItem(keyG) || '[]');
+let ingresos       = parseFloat(localStorage.getItem(keyI)) || 0;
+let otrosIngresos  = JSON.parse(localStorage.getItem(keyO)) || [];
+let moneda         = localStorage.getItem(keyM) || '$';
 
     // --- 1. Claves y carga inicial ---
     const keyG = 'gastos',
@@ -65,12 +75,10 @@
     
 
    // --- Claves y carga inicial de ingresos, otros ingresos y moneda ---
-     const keyI = 'ingresos',
+    
         keyO = 'otrosIngresos',
         keyM = 'moneda';
-      let ingresos      = parseFloat(localStorage.getItem(keyI)) || 0;
-      let otrosIngresos = JSON.parse(localStorage.getItem(keyO)) || [];
-      let moneda        = localStorage.getItem(keyM) || '$';
+          let moneda        = localStorage.getItem(keyM) || '$';
 
 
     // Carga categorías por defecto si no existen
@@ -145,8 +153,7 @@ btnDelCat.addEventListener('click', () => {
   
 
     // Carga inicial de ingresos
-    let ingresos      = parseFloat(localStorage.getItem(keyI) || '0');
-    let otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
+
 
     // Función para recalcular y mostrar el saldo
     function refreshSaldo() {
