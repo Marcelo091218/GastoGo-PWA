@@ -68,17 +68,9 @@ let ingresos       = parseFloat(localStorage.getItem(keyI)) || 0;
 let otrosIngresos  = JSON.parse(localStorage.getItem(keyO)) || [];
 let moneda         = localStorage.getItem(keyM) || '$';
 
+   
 
-    
-
-   // --- Claves y carga inicial de ingresos, otros ingresos y moneda ---
-    
-        keyO = 'otrosIngresos',
-        keyM = 'moneda';
-          let moneda        = localStorage.getItem(keyM) || '$';
-
-
-    // Carga categorías por defecto si no existen
+   // Carga categorías por defecto si no existen
     if (!localStorage.getItem(keyC)) {
       localStorage.setItem(keyC, JSON.stringify([
         "Vivienda",
