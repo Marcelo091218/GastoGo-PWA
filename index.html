@@ -109,6 +109,30 @@
     inpIngresos.value = ingresos;
     refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
+    // Formateo en blur/focus para campos numéricos
+function formatNumber(val) {
+  // Convertir coma a punto y remover puntos
+  var num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+  if (isNaN(num)) num = 0;
+  // Limitar enteros a 8 dígitos
+  var parts = num.toFixed(2).split('.');
+  var intPart = parts[0];
+  var decPart = parts[1];
+  if (intPart.length > 8) intPart = intPart.slice(-8);
+  // Separador miles
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return intPart + ',' + decPart;
+}
+[inpI, inpO, montoInput].forEach(function(el) {
+  el.addEventListener('focus', function() {
+    // Mostrar número sin formato
+    this.value = this.value.replace(/\./g, '').replace(',', '.');
+  });
+  el.addEventListener('blur', function() {
+    this.value = formatNumber(this.value);
+  });
+});
+    
     btnSetIngresos.addEventListener('click', () => {
       ingresos = parseFloat(inpIngresos.value) || 0;
       localStorage.setItem(keyI, ingresos);
