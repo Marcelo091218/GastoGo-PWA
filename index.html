@@ -6,224 +6,213 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <style>
-    body { font-family: sans-serif; margin:0; padding:0 }
-    header { background:#4CAF50; color:#fff; padding:1rem; text-align:center }
-    main { padding:1rem }
-    input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; }
-    .gasto-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
+    body { font-family: sans-serif; margin:0; padding:0; }
+    header { background:#4CAF50; color:#fff; padding:1rem; text-align:center; }
+    main { padding:1rem; }
+    section { margin-top:1.5rem; border:1px solid #ddd; padding:1rem; border-radius:8px; }
+    h2 { margin-top:0; }
+    .flex { display:flex; align-items:center; }
+    .flex > * { margin-right:8px; }
+    input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
+    .gasto-item, .hist-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
+    .saldo { font-size:1.2rem; font-weight:bold; }
   </style>
 </head>
 <body>
   <header><h1>GastoGo</h1></header>
-  <main> 
-
-        <!-- Ingresos -->
+  <main>
+    <!-- Ingresos -->
     <section id="secIngresos">
       <h2>Definir Ingresos</h2>
-      <div class="flex" style="align-items:center">
+      <div class="flex">
         <input type="number" id="inputIngresos" placeholder="Monto de ingresos" />
-        <button id="btnSetIngresos" style="margin-left:8px">Guardar</button>
+        <button id="btnSetIngresos">Guardar</button>
       </div>
-      <div class="flex" style="align-items:center">
+      <div class="flex">
         <input type="number" id="inputOtrosIngresos" placeholder="Otros ingresos" />
-        <button id="btnAddOtrosIngresos" style="margin-left:8px">Agregar Otros</button>
+        <button id="btnAddOtrosIngresos">Agregar Otros</button>
       </div>
-      <div class="saldo">
-        Saldo restante: <span id="saldoRestante">$0.00</span>
-      </div>
+      <div class="saldo">Saldo restante: <span id="saldoRestante">$0.00</span></div>
+      <button id="btnFinalizarMes">Finalizar Mes</button>
     </section>
 
-    
-    <h2>Registrar gasto</h2>
-    <input type="date" id="fecha" />
-    <input type="number" id="monto" placeholder="Monto" />
-    
-  <div class="flex" style="align-items:center">
-    <select id="categoria">
-      <option disabled selected value="">-- Seleccionar categoría --</option>
-    </select>
-    <button id="btnAddCat" title="Agregar categoría" style="margin-left:8px">+</button>
-    <button id="btnDelCat" title="Eliminar categoría" style="margin-left:4px">–</button>
-  </div>
+    <!-- Registrar Gasto -->
+    <section id="secGastos">
+      <h2>Registrar gasto</h2>
+      <input type="date" id="fecha" />
+      <input type="number" id="monto" placeholder="Monto" />
+      <div class="flex">
+        <select id="categoria">
+          <option disabled selected value="">-- Seleccionar categoría --</option>
+        </select>
+        <button id="btnAddCat">+</button>
+        <button id="btnDelCat">–</button>
+      </div>
+      <input type="text" id="subcat" placeholder="Subcategoría" />
+      <textarea id="obs" placeholder="Observaciones"></textarea>
+      <button id="btnGuardar">Guardar Gasto</button>
+    </section>
 
-    <input type="text" id="subcat" placeholder="Subcategoría" />
-    <textarea id="obs" placeholder="Observaciones"></textarea>
-    <button id="btnGuardar">Guardar Gasto</button>
+    <!-- Historial de Gastos -->
+    <section id="secHistorial">
+      <h2>Historial de Gastos</h2>
+      <div id="listaGastos"></div>
+    </section>
 
-    <h2 class="gastos">Historial</h2>
-    <div id="listaGastos"></div>
+    <!-- Historial de Meses -->
+    <section id="secHistorialMeses">
+      <h2>Historial de Meses Finalizados</h2>
+      <div id="listaMeses"></div>
+    </section>
   </main>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-      console.log('✅ GastoGo script arrancó');
-// --- Claves y carga inicial ---
-const keyG = 'gastos',
-      keyC = 'categorias',
-      keyI = 'ingresos',
-      keyO = 'otrosIngresos',
-      keyM = 'moneda';
-let gastos         = JSON.parse(localStorage.getItem(keyG) || '[]');
-let ingresos       = parseFloat(localStorage.getItem(keyI)) || 0;
-let otrosIngresos  = JSON.parse(localStorage.getItem(keyO)) || [];
-let moneda         = localStorage.getItem(keyM) || '$';
+    (function() {
+      // Variables globales
+      var keyG = 'gastos', keyC = 'categorias', keyI = 'ingresos', keyO = 'otrosIngresos', keyH = 'historialMeses', keyM = 'moneda';
+      var gastos = [], ingresos = 0, otrosIngresos = [], historial = [], categorias = [], moneda = '$';
 
-   
+      // Obtener elementos DOM
+      var inpIngresos = document.getElementById('inputIngresos');
+      var btnSetIngresos = document.getElementById('btnSetIngresos');
+      var inpOtros = document.getElementById('inputOtrosIngresos');
+      var btnAddOtros = document.getElementById('btnAddOtrosIngresos');
+      var saldoEl = document.getElementById('saldoRestante');
+      var btnFinalMes = document.getElementById('btnFinalizarMes');
+      var fechaInput = document.getElementById('fecha');
+      var montoInput = document.getElementById('monto');
+      var selCat = document.getElementById('categoria');
+      var btnAddCat = document.getElementById('btnAddCat');
+      var btnDelCat = document.getElementById('btnDelCat');
+      var subcatInput = document.getElementById('subcat');
+      var obsInput = document.getElementById('obs');
+      var btnGuardar = document.getElementById('btnGuardar');
 
-   // Carga categorías por defecto si no existen
-    if (!localStorage.getItem(keyC)) {
-      localStorage.setItem(keyC, JSON.stringify([
-        "Vivienda",
-        "Impuestos y servicios",
-        "Vehículo",
-        "Otros gastos"
-      ]));
-    }
-     // --- FORZAR CATEGORÍAS POR DEFECTO ---
-    const defaultCats = [
-      "Vivienda",
-      "Impuestos y servicios",
-      "Vehículo",
-      "Otros gastos"
-    ];
-    // Siempre reiniciamos a esos valores
-    localStorage.setItem(keyC, JSON.stringify(defaultCats));
-    let categorias = [...defaultCats];
+      // Funciones de carga
+      function loadData() {
+        try { gastos = JSON.parse(localStorage.getItem(keyG)) || []; } catch(e) { gastos = []; }
+        ingresos = parseFloat(localStorage.getItem(keyI)) || 0;
+        try { otrosIngresos = JSON.parse(localStorage.getItem(keyO)) || []; } catch(e){ otrosIngresos = []; }
+        try { historial = JSON.parse(localStorage.getItem(keyH)) || []; } catch(e){ historial = []; }
+        moneda = localStorage.getItem(keyM) || '$';
 
-    // Referencia al combo
-    const selCat = document.getElementById('categoria');
+        categorias = JSON.parse(localStorage.getItem(keyC));
+        if (!Array.isArray(categorias) || categorias.length === 0) {
+          categorias = ['Vivienda','Impuestos y servicios','Vehículo','Otros gastos'];
+          localStorage.setItem(keyC, JSON.stringify(categorias));
+        }
+      }
 
-    // Función para poblar el combo
-    function refreshCategories() {
-      selCat.innerHTML = `
-        <option disabled selected value="">-- Seleccionar categoría --</option>
-        ${categorias.map(c => `<option value="${c}">${c}</option>`).join('')}
-      `;
-    }
+      // Funciones de refresco UI
+      function refreshCategories() {
+        selCat.innerHTML = '<option disabled selected value="">-- Seleccionar categoría --</option>' +
+          categorias.map(function(c) { return '<option>' + c + '</option>'; }).join('');
+      }
+      function refreshGastos() {
+        var html = gastos.map(function(g) {
+          return '<div class="gasto-item">' + g.fecha + ' – ' + g.categoria + '/' + g.subcat + ': ' + moneda + (parseFloat(g.monto)||0).toFixed(2) + '</div>';
+        }).join('') || '<em>No hay gastos</em>';
+        document.getElementById('listaGastos').innerHTML = html;
+      }
+      function refreshMeses() {
+        var html = historial.map(function(m,i) {
+          var totalG = m.gastos.reduce(function(s, g){ return s + (parseFloat(g.monto)||0);},0);
+          var totalO = m.otrosIngresos.reduce(function(s,o){return s + (parseFloat(o)||0);},0);
+          var saldo = (m.ingresos + totalO - totalG).toFixed(2);
+          return '<div class="hist-item"><strong>'+new Date(m.fecha).toLocaleDateString()+'</strong><br>' +
+            'Ingresos: '+moneda+m.ingresos.toFixed(2)+' + Otros: '+moneda+totalO.toFixed(2)+'<br>' +
+            'Gastos: '+moneda+totalG.toFixed(2)+' | Saldo: '+moneda+saldo +
+            ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
+        }).join('') || '<em>No hay meses finalizados</em>';
+        document.getElementById('listaMeses').innerHTML = html;
+      }
+      function refreshSaldo() {
+        var totalG = gastos.reduce(function(s, g){ return s + (parseFloat(g.monto)||0); },0);
+        var totalO = otrosIngresos.reduce(function(s,o){ return s + (parseFloat(o)||0); },0);
+        var restante = (ingresos + totalO - totalG).toFixed(2);
+        saldoEl.textContent = moneda + restante;
+      }
 
-    // Referencias a los botones
-const btnAddCat = document.getElementById('btnAddCat');
-const btnDelCat = document.getElementById('btnDelCat');
+      // Inicializar
+      function init() {
+        loadData();
+        inpIngresos.value = ingresos;
+        fechaInput.value = new Date().toISOString().substr(0,10);
+        btnGuardar.disabled = true;
+        refreshCategories();
+        refreshGastos();
+        refreshMeses();
+        refreshSaldo();
 
-// Agregar nueva categoría con prompt
-btnAddCat.addEventListener('click', () => {
-  const nueva = prompt('Nombre de la nueva categoría:');
-  if (!nueva) return;
-  const trimCat = nueva.trim();
-  if (categorias.includes(trimCat)) {
-    alert('La categoría ya existe.');
-  } else {
-    categorias.push(trimCat);
-    localStorage.setItem(keyC, JSON.stringify(categorias));
-    refreshCategories();
-    // Seleccionamos la nueva categoría
-    document.getElementById('categoria').value = trimCat;
-  }
-});
+        // Listeners
+        btnSetIngresos.onclick = function() {
+          ingresos = parseFloat(inpIngresos.value)||0;
+          localStorage.setItem(keyI, ingresos);
+          inpIngresos.disabled = true;
+          btnSetIngresos.disabled = true;
+          refreshSaldo();
+        };
+        btnAddOtros.onclick = function() {
+          var o = parseFloat(inpOtros.value)||0;
+          otrosIngresos.push(o);
+          localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+          inpOtros.value = '';
+          refreshSaldo();
+        };
+        btnAddCat.onclick = function() {
+          var nueva = prompt('Nueva categoría:')||'';
+          nueva = nueva.trim();
+          if (nueva && categorias.indexOf(nueva)===-1) {
+            categorias.push(nueva);
+            localStorage.setItem(keyC, JSON.stringify(categorias));
+            refreshCategories();
+            selCat.value = nueva;
+          }
+        };
+        btnDelCat.onclick = function() {
+          var val = selCat.value;
+          if (val && confirm('Eliminar '+val+'?')) {
+            categorias = categorias.filter(function(c){return c!==val;});
+            localStorage.setItem(keyC, JSON.stringify(categorias));
+            refreshCategories();
+          }
+        };
+        montoInput.oninput = subcatInput.oninput = function() {
+          btnGuardar.disabled = !(montoInput.value && subcatInput.value);
+        };
+        btnGuardar.onclick = function() {
+          var g = { fecha:fechaInput.value, monto:montoInput.value, categoria:selCat.value, subcat:subcatInput.value, obs:obsInput.value };
+          gastos.unshift(g);
+          localStorage.setItem(keyG, JSON.stringify(gastos));
+          refreshGastos(); refreshSaldo();
+          montoInput.value = ''; subcatInput.value=''; obsInput.value='';
+          btnGuardar.disabled = true;
+        };
+        btnFinalMes.onclick = function(){
+          historial.unshift({ ingresos:ingresos, otrosIngresos:otrosIngresos.slice(), gastos:gastos.slice(), fecha:new Date().toISOString() });
+          localStorage.setItem(keyH, JSON.stringify(historial));
+          gastos=[]; ingresos=0; otrosIngresos=[];
+          localStorage.removeItem(keyG); localStorage.removeItem(keyI); localStorage.removeItem(keyO);
+          inpIngresos.value=''; inpIngresos.disabled=false; btnSetIngresos.disabled=false;
+          refreshGastos(); refreshMeses(); refreshSaldo();
+          alert('Mes finalizado.');
+        };
+      }
 
-// Eliminar categoría seleccionada
-btnDelCat.addEventListener('click', () => {
-  const actual = document.getElementById('categoria').value;
-  if (!actual) return alert('Selecciona primero una categoría.');
-  if (confirm(`¿Eliminar la categoría "${actual}"?`)) {
-    categorias = categorias.filter(c => c !== actual);
-    localStorage.setItem(keyC, JSON.stringify(categorias));
-    refreshCategories();
-  }
-});
-
-        // --- Sección Ingresos y Saldo ---
-    const inpIngresos    = document.getElementById('inputIngresos');
-    const btnSetIngresos = document.getElementById('btnSetIngresos');
-    const inpOtros      = document.getElementById('inputOtrosIngresos');
-    const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
-    const saldoEl       = document.getElementById('saldoRestante');
-
-  
-
-    // Carga inicial de ingresos
-
-
-    // Función para recalcular y mostrar el saldo
-    function refreshSaldo() {
-    // Suma todos los montos de gastos, ignorando NaN
-    const totalG = gastos.reduce((sum, g) => {
-      const val = parseFloat(g.monto);
-      return sum + (isNaN(val) ? 0 : val);
-    }, 0);
-
-    // Suma todos los “otros ingresos”, ignorando NaN
-    const totalO = otrosIngresos.reduce((sum, o) => {
-      const val = parseFloat(o);
-      return sum + (isNaN(val) ? 0 : val);
-    }, 0);
-
-    // Cálculo final: ingresos base + otros - gastos
-    const restante = ((parseFloat(ingresos) || 0) + totalO - totalG).toFixed(2);
-
-    // Actualiza en pantalla
-    document.getElementById('saldoRestante').textContent = `${moneda}${restante}`;
-  }
-
-
-    // Inicialización de inputs y saldo
-    inpIngresos.value = ingresos || '';
-    refreshSaldo();
-
-    //  Guardar ingreso base y bloquear edición
-    btnSetIngresos.addEventListener('click', () => {
-      console.log('🔔 btnSetIngresos clicked:', inpIngresos.value);
-      ingresos = parseFloat(inpIngresos.value) || 0;
-      localStorage.setItem(keyI, ingresos);
-      inpIngresos.disabled = true;
-      btnSetIngresos.disabled = true;
-      refreshSaldo();
-    });
-
-    // Agregar “Otros Ingresos”
-    btnAddOtros.addEventListener('click', () => {
-      console.log('🔔 btnAddOtrosIngresos clicked:', inpOtros.value);
-      const o = parseFloat(inpOtros.value) || 0;
-      otrosIngresos.push(o);
-      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-      inpOtros.value = '';
-      refreshSaldo();
-    });
-
-    
-    // Llamamos al refresco inicial
-    refreshCategories();
-
-
-    function refreshList() {
-      const html = gastos.map(g =>
-        `<div class="gasto-item">
-          ${g.fecha} – ${g.categoria}/${g.subcat}: $${g.monto}
-        </div>`
-      ).join('');
-      document.getElementById('listaGastos').innerHTML = html || '<em>No hay gastos</em>';
-    }
-
-    // --- 3. Eventos ---
-    btnGuardar.addEventListener('click', () => {
-      console.log('🔔 btnGuardar clicked:',
-      const g = {
-        fecha:     document.getElementById('fecha').value,
-        monto:     document.getElementById('monto').value,
-        categoria: selCat.value,
-        subcat:    document.getElementById('subcat').value
+      window.borrarMes = function(i) {
+        historial.splice(i,1);
+        localStorage.setItem(keyH, JSON.stringify(historial));
+        refreshMeses();
       };
-      gastos.unshift(g);
-      localStorage.setItem(keyG, JSON.stringify(gastos));
-      refreshList();
-      refreshSaldo();
-    });
 
-    // --- 4. Inicialización ---
-    refreshCategories();
-    refreshList();
-  });
-</script>
+      // Registrar Service Worker si existe
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
 
+      // Ejecutar init al DOMReady
+      if (document.readyState==='complete') init(); else document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
 </body>
 </html>
