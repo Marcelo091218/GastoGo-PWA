@@ -172,6 +172,7 @@ btnDelCat.addEventListener('click', () => {
 
     //  Guardar ingreso base y bloquear edición
     btnSetIngresos.addEventListener('click', () => {
+      console.log('🔔 btnSetIngresos clicked:', inpIngresos.value);
       ingresos = parseFloat(inpIngresos.value) || 0;
       localStorage.setItem(keyI, ingresos);
       inpIngresos.disabled = true;
@@ -181,6 +182,7 @@ btnDelCat.addEventListener('click', () => {
 
     // Agregar “Otros Ingresos”
     btnAddOtros.addEventListener('click', () => {
+      console.log('🔔 btnAddOtrosIngresos clicked:', inpOtros.value);
       const o = parseFloat(inpOtros.value) || 0;
       otrosIngresos.push(o);
       localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
@@ -204,6 +206,7 @@ btnDelCat.addEventListener('click', () => {
 
     // --- 3. Eventos ---
     btnGuardar.addEventListener('click', () => {
+      console.log('🔔 btnGuardar clicked:',
       const g = {
         fecha:     document.getElementById('fecha').value,
         monto:     document.getElementById('monto').value,
