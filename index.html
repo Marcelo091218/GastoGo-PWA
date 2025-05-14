@@ -18,8 +18,8 @@ Para limpiar la PWA en Android:
     h2 { margin-top:0; }
     .flex { display:flex; align-items:center; }
     .flex > * { margin-right:8px; }
-    .input-group { position:relative; }
-    .input-group span { position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; color:#666; }
+    .input-group { display:flex; align-items:center; position:relative; }
+    .input-group span { margin-right:8px; color:#666; pointer-events:none; }
     .error-msg { font-size:0.8rem; color:red; margin-top:-0.5rem; margin-bottom:0.5rem; }
     input.invalid { border-color:red; }
     input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
@@ -34,14 +34,14 @@ Para limpiar la PWA en Android:
     <section id="secIngresos">
       <h2>Definir Ingresos</h2>
       <div class="input-group">
-        <input type="text" id="inputIngresos" placeholder="Monto de ingresos" value="0.00" />
         <span>$</span>
+        <input type="text" id="inputIngresos" placeholder="0.00" value="0.00" />
       </div>
       <div id="errorIngresos" class="error-msg"></div>
       <button type="button" id="btnSetIngresos">Guardar</button>
       <div class="input-group">
-        <input type="text" id="inputOtrosIngresos" placeholder="Otros ingresos" value="0.00" />
         <span>$</span>
+        <input type="text" id="inputOtrosIngresos" placeholder="0.00" value="0.00" />
       </div>
       <div id="errorOtros" class="error-msg"></div>
       <button type="button" id="btnAddOtrosIngresos">Agregar Otros</button>
@@ -81,121 +81,118 @@ Para limpiar la PWA en Android:
 
   <script>
   (function() {
-    // Claves
-    var keyG='gastos',keyC='categorias',keyI='ingresos',keyO='otrosIngresos',keyH='historialMeses',keyM='moneda';
-    // Datos
+    // Claves y datos
+    var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses', keyM='moneda';
     var gastos, ingresos, otrosIngresos, historial, categorias, moneda;
     // Elementos
     var inpI, btnI, errI, inpO, btnO, errO, saldoEl, btnFin;
     var fechaInput, montoInput, selCat, btnAddCat, btnDelCat, subcatInput, obsInput, btnGuardar;
 
     function loadData() {
-      gastos = JSON.parse(localStorage.getItem(keyG) || '[]');
-      ingresos = parseFloat(localStorage.getItem(keyI)) || 0;
-      otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]');
-      historial = JSON.parse(localStorage.getItem(keyH) || '[]');
-      moneda = localStorage.getItem(keyM) || '$';
-      categorias = JSON.parse(localStorage.getItem(keyC) || 'null');
-      if (!Array.isArray(categorias) || categorias.length === 0) {
-        categorias = ['Vivienda','Impuestos y servicios','Vehículo','Otros gastos'];
-        localStorage.setItem(keyC, JSON.stringify(categorias));
+      gastos = JSON.parse(localStorage.getItem(keyG)||'[]');
+      ingresos = parseFloat(localStorage.getItem(keyI))||0;
+      otrosIngresos = JSON.parse(localStorage.getItem(keyO)||'[]');
+      historial = JSON.parse(localStorage.getItem(keyH)||'[]');
+      moneda = localStorage.getItem(keyM)||'$';
+      categorias = JSON.parse(localStorage.getItem(keyC)||'null');
+      if(!Array.isArray(categorias)||categorias.length===0){
+        categorias=['Vivienda','Impuestos y servicios','Vehículo','Otros gastos'];
+        localStorage.setItem(keyC,JSON.stringify(categorias));
       }
     }
-    function fmt(v) { return parseFloat(v).toFixed(2); }
-    function validNum(str) { return /^\d+(\.\d{1,2})?$/.test(str); }
-
-    function refreshCategories() {
-      selCat.innerHTML = '<option disabled selected value="">-- Seleccionar categoría --</option>' +
+    function fmt(v){return parseFloat(v).toFixed(2);}    
+    function validNum(str){return /^\d+(\.\d{1,2})?$/.test(str);}    
+    function refreshCategories(){
+      selCat.innerHTML='<option disabled selected value="">-- Seleccionar categoría --</option>'+
         categorias.map(function(c){return '<option>'+c+'</option>';}).join('');
     }
-    function refreshGastos() {
-      var html = gastos.map(function(g){
-        return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+fmt(g.monto)+'</div>';
-      }).join('') || '<em>No hay gastos</em>';
-      document.getElementById('listaGastos').innerHTML = html;
+    function refreshGastos(){
+      var html=gastos.map(function(g){return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+fmt(g.monto)+'</div>';}).join('')||'<em>No hay gastos</em>';
+      document.getElementById('listaGastos').innerHTML=html;
     }
-    function refreshMeses() {
-      var html = historial.map(function(m,i){
-        var tg = m.gastos.reduce(function(s,g){return s+parseFloat(g.monto);},0);
-        var to = m.otrosIngresos.reduce(function(s,o){return s+parseFloat(o);},0);
-        var sal = (m.ingresos + to - tg).toFixed(2);
+    function refreshMeses(){
+      var html=historial.map(function(m,i){
+        var tg=m.gastos.reduce(function(s,g){return s+parseFloat(g.monto);},0);
+        var to=m.otrosIngresos.reduce(function(s,o){return s+parseFloat(o);},0);
+        var sal=(m.ingresos+to-tg).toFixed(2);
         return '<div class="hist-item"><strong>'+new Date(m.fecha).toLocaleDateString()+'</strong><br>'+
-               'Ingresos: '+moneda+fmt(m.ingresos)+' + Otros: '+moneda+fmt(to)+'<br>'+
-               'Gastos: '+moneda+fmt(tg)+' | Saldo: '+moneda+sal+
-               ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
-      }).join('') || '<em>No hay meses finalizados</em>';
-      document.getElementById('listaMeses').innerHTML = html;
+          'Ingresos: '+moneda+fmt(m.ingresos)+' + Otros: '+moneda+fmt(to)+'<br>'+
+          'Gastos: '+moneda+fmt(tg)+' | Saldo: '+moneda+sal+
+          ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
+      }).join('')||'<em>No hay meses finalizados</em>';
+      document.getElementById('listaMeses').innerHTML=html;
     }
-    function refreshSaldo() {
-      var tg = gastos.reduce(function(s,g){return s+(parseFloat(g.monto)||0);},0);
-      var to = otrosIngresos.reduce(function(s,o){return s+(parseFloat(o)||0);},0);
-      saldoEl.textContent = moneda+fmt(ingresos+to-tg);
+    function refreshSaldo(){
+      var tg=gastos.reduce(function(s,g){return s+(parseFloat(g.monto)||0);},0);
+      var to=otrosIngresos.reduce(function(s,o){return s+(parseFloat(o)||0);},0);
+      saldoEl.textContent=moneda+fmt(ingresos+to-tg);
     }
 
-    [inpI, inpO].forEach(function(el) {
-  el.addEventListener('input', function(e) {
-    var v = e.target.value.replace(/[^0-9.]/g, '');
-    var parts = v.split('.');
-    if (parts.length > 1) {
-      parts[1] = parts[1].slice(0,2);
-      v = parts[0] + '.' + parts[1];
-    }
-    e.target.value = v;
-  });
-});
-
-    
     function init(){
-      // Referencias
-      inpI = document.getElementById('inputIngresos'); btnI = document.getElementById('btnSetIngresos'); errI = document.getElementById('errorIngresos');
-      inpO = document.getElementById('inputOtrosIngresos'); btnO = document.getElementById('btnAddOtrosIngresos'); errO = document.getElementById('errorOtros');
-      saldoEl = document.getElementById('saldoRestante'); btnFin = document.getElementById('btnFinalizarMes');
-      fechaInput = document.getElementById('fecha'); montoInput = document.getElementById('monto');
-      selCat = document.getElementById('categoria'); btnAddCat = document.getElementById('btnAddCat'); btnDelCat = document.getElementById('btnDelCat');
-      subcatInput = document.getElementById('subcat'); obsInput = document.getElementById('obs'); btnGuardar = document.getElementById('btnGuardar');
+      // Referencias DOM
+      inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); errI=document.getElementById('errorIngresos');
+      inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); errO=document.getElementById('errorOtros');
+      saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
+      fechaInput=document.getElementById('fecha'); montoInput=document.getElementById('monto');
+      selCat=document.getElementById('categoria'); btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
+      subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); btnGuardar=document.getElementById('btnGuardar');
 
       loadData();
-      // UI
-      inpI.value = fmt(ingresos); inpO.value = fmt(0);
+      // Inicial UI
+      inpI.value=fmt(ingresos); inpO.value=fmt(0);
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
+      // Restricción de input: solo números y hasta 2 decimales
+      [inpI, inpO].forEach(function(el){
+        el.oninput=function(e){
+          var v=e.target.value.replace(/[^0-9.]/g,'');
+          var parts=v.split('.');
+          if(parts.length>1){parts[1]=parts[1].slice(0,2); v=parts[0]+'.'+parts[1];}
+          e.target.value=v;
+        };
+      });
+
       // Ingresos
-      btnI.onclick = function(){
-        var v=inpI.value.trim(); if(!validNum(v)||parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;} errI.textContent=''; inpI.classList.remove('invalid');
+      btnI.onclick=function(){
+        var v=inpI.value.trim();
+        if(!validNum(v)||parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;}
+        errI.textContent=''; inpI.classList.remove('invalid');
         if(confirm('¿Desea guardar el monto ingresado?')){ingresos=parseFloat(v);localStorage.setItem(keyI,ingresos);inpI.disabled=true;btnI.disabled=true;refreshSaldo();}
       };
-      btnO.onclick = function(){
-        var v=inpO.value.trim(); if(!validNum(v)||parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;} errO.textContent=''; inpO.classList.remove('invalid');
+      btnO.onclick=function(){
+        var v=inpO.value.trim();
+        if(!validNum(v)||parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;}
+        errO.textContent=''; inpO.classList.remove('invalid');
         if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=fmt(0);refreshSaldo();}
       };
 
       // Gasto
       [montoInput, subcatInput].forEach(function(el){el.oninput=function(){btnGuardar.disabled=!(montoInput.value&&subcatInput.value);};});
-      btnGuardar.onclick = function(){
+      btnGuardar.onclick=function(){
         var g={fecha:fechaInput.value, monto:montoInput.value, categoria:selCat.value, subcat:subcatInput.value, obs:obsInput.value};
-        gastos.unshift(g); localStorage.setItem(keyG,JSON.stringify(gastos)); refreshGastos(); refreshSaldo();
+        gastos.unshift(g);localStorage.setItem(keyG,JSON.stringify(gastos));refreshGastos();refreshSaldo();
         montoInput.value=''; subcatInput.value=''; obsInput.value=''; btnGuardar.disabled=true;
       };
 
       // Categorías
-      btnAddCat.onclick = function(){var n=prompt('Nueva categoría:'); if(n){n=n.trim(); if(categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}}};
-      btnDelCat.onclick = function(){var c=selCat.value; if(c&&confirm('Eliminar '+c+'?')){categorias=categorias.filter(function(i){return i!==c;});localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();}};
+      btnAddCat.onclick=function(){var n=prompt('Nueva categoría:')||'';n=n.trim();if(n&&categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}};
+      btnDelCat.onclick=function(){var c=selCat.value;if(c&&confirm('Eliminar '+c+'?')){categorias=categorias.filter(function(i){return i!==c;});localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();}};
 
       // Finalizar Mes
-      btnFin.onclick = function(){
-        historial.unshift({ingresos:ingresos, otrosIngresos:otrosIngresos.slice(), gastos:gastos.slice(), fecha:new Date().toISOString()});
-        localStorage.setItem(keyH,JSON.stringify(historial)); gastos=[]; ingresos=0; otrosIngresos=[];
-        localStorage.removeItem(keyG); localStorage.removeItem(keyI); localStorage.removeItem(keyO);
-        inpI.value='0.00'; inpI.disabled=false; btnI.disabled=false;
-        refreshGastos(); refreshMeses(); refreshSaldo(); alert('Mes finalizado.');
+      btnFin.onclick=function(){
+        historial.unshift({ingresos:ingresos,otrosIngresos:otrosIngresos.slice(),gastos:gastos.slice(),fecha:new Date().toISOString()});
+        localStorage.setItem(keyH,JSON.stringify(historial));gastos=[];ingresos=0;otrosIngresos=[];
+        localStorage.removeItem(keyG);localStorage.removeItem(keyI);localStorage.removeItem(keyO);
+        inpI.value='0.00';inpI.disabled=false;btnI.disabled=false;
+        refreshGastos();refreshMeses();refreshSaldo();alert('Mes finalizado.');
       };
 
       // Borrar Mes
-      window.borrarMes = function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
+      window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
     }
-    if(document.readyState==='complete') init(); else document.addEventListener('DOMContentLoaded', init);
-    if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+    if(document.readyState==='complete')init();else document.addEventListener('DOMContentLoaded',init);
+    if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
   })();
   </script>
 </body>
