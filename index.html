@@ -142,9 +142,7 @@ btnDelCat.addEventListener('click', () => {
     const btnAddOtros   = document.getElementById('btnAddOtrosIngresos');
     const saldoEl       = document.getElementById('saldoRestante');
 
-    // Claves para storage
-    const keyI = 'ingresos';
-    const keyO = 'otrosIngresos';
+  
 
     // Carga inicial de ingresos
     let ingresos      = parseFloat(localStorage.getItem(keyI) || '0');
