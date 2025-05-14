@@ -144,21 +144,15 @@ Para limpiar la PWA en Android:
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
     
-// Restricción y formateo dinámico: 8 dígitos enteros y 2 decimales (derecha → izquierda)
+// Restricción y formateo dinámico: 8 enteros y 2 decimales (derecha → izquierda)
 [inpI, inpO, montoInput].forEach(function(el) {
   el.oninput = function(e) {
-    // Extrae solo dígitos
     var digits = e.target.value.replace(/\D/g, '');
-    // Limita a 10 dígitos (8 enteros + 2 decimales)
     digits = digits.slice(-10);
-    // Rellena con ceros a la izquierda para asegurar al menos 3 dígitos
     while (digits.length < 3) digits = '0' + digits;
-    // Divide en parte entera y decimal
     var intPart = digits.slice(0, -2);
     var decPart = digits.slice(-2);
-    // Añade puntos de miles en la parte entera
     intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    // Reconstruye con coma decimal
     e.target.value = intPart + ',' + decPart;
   };
 });
