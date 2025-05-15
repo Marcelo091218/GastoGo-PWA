@@ -143,15 +143,23 @@ Para limpiar la PWA en Android:
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
-      // Restricción de input: solo números y hasta 2 decimales
-      [inpI, inpO].forEach(function(el){
-        el.oninput=function(e){
-          var v=e.target.value.replace(/[^0-9.]/g,'');
-          var parts=v.split('.');
-          if(parts.length>1){parts[1]=parts[1].slice(0,2); v=parts[0]+'.'+parts[1];}
-          e.target.value=v;
-        };
-      });
+// Restricción y formateo: hasta 8 enteros, 2 decimales, miles con puntos y coma decimal
+[inpI, inpO, montoInput].forEach(function(el) {
+  el.oninput = function(e) {
+    // 1. Eliminar todo excepto dígitos y punto
+    let v = e.target.value.replace(/[^0-9.]/g, '');
+    // 2. Separar parte entera y decimal
+    let parts = v.split('.');
+    let intPart = parts[0].slice(0, 8);               // 8 dígitos máximo
+    let decPart = (parts[1] || '').slice(0, 2);       // 2 decimales máximo
+    // 3. Poner puntos de miles en la parte entera
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    // 4. Reconstruir y usar coma como separador decimal
+    v = decPart ? intPart + ',' + decPart : intPart;
+    e.target.value = v;
+  };
+});
+
 
       // Ingresos
       btnI.onclick=function(){
