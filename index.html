@@ -142,8 +142,9 @@ function formatRL(str) {
       }).join('')||'<em>No hay meses finalizados</em>';
       document.getElementById('listaMeses').innerHTML=html;
     }
+    
 function refreshSaldo() {
-  // Bases limpias
+  // 1) Sumar gastos y otrosIngresos tal como estaban
   var totalGastos = gastos.reduce(function(s, g){
     return s + (parseFloat(g.monto) || 0);
   }, 0);
@@ -152,15 +153,19 @@ function refreshSaldo() {
   }, 0);
   var ingresoBase = parseFloat(ingresos) || 0;
 
-  // Cálculo puro
-  var restanteNum = ingresoBase + totalOtros - totalGastos;
+  // 2) Cálculo puro de unidades
+  var restante = ingresoBase + totalOtros - totalGastos;
 
-  // Formateo final
-  var formatted = formatRL(restanteNum.toString());
+  // 3) Convertir a centavos (entero)
+  var cents = Math.round(restante * 100).toString();
 
-  // Mostrar
+  // 4) Formatear con formatRL (que interpreta la string de centavos)
+  var formatted = formatRL(cents);
+
+  // 5) Mostrar con el símbolo de moneda
   saldoEl.textContent = moneda + formatted;
 }
+
 
 
     function init(){
