@@ -200,21 +200,40 @@ function refreshSaldo() {
         });
       });
 
-// --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function() {
   var v = inpI.value.trim();
+  // 1) Validar vacío
   if (!v) {
     errI.textContent = 'Debes cargar un valor';
     inpI.classList.add('invalid');
     return;
   }
+  // 2) Sanitizar texto a número
+  var raw = v.replace(/\./g,'').replace(',','.');
+  var num = parseFloat(raw) || 0;
+  // 3) Validar que no sea cero
+  if (num <= 0) {
+    errI.textContent = 'Debes cargar un valor';
+    inpI.classList.add('invalid');
+    return;
+  }
+  // 4) Confirmación
   errI.textContent = '';
   inpI.classList.remove('invalid');
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
-  var raw = v.replace(/\./g,'').replace(',','.');
-  ingresos = parseFloat(raw) || 0;
+  // 5) Guardar ingreso y resetear gastos/otros
+  ingresos = num;
   localStorage.setItem(keyI, ingresos);
+  gastos = []; otrosIngresos = [];
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // 6) UI
+  inpI.disabled = true; btnI.disabled = true;
+  refreshGastos(); refreshMeses(); refreshSaldo();
+};
+
 
   // Reinicio de gastos y otrosIngresos
   gastos = [];
@@ -230,27 +249,35 @@ btnI.onclick = function() {
   refreshSaldo();
 };
 
-// --- Agregar Otros ingresos sin validar formato, solo vacío ---
 btnO.onclick = function() {
   var v = inpO.value.trim();
+  // 1) Validar vacío
   if (!v) {
     errO.textContent = 'Debes cargar un valor';
     inpO.classList.add('invalid');
     return;
   }
+  // 2) Sanitizar y parsear
+  var raw = v.replace(/\./g,'').replace(',','.');
+  var num = parseFloat(raw) || 0;
+  // 3) Validar que no sea cero
+  if (num <= 0) {
+    errO.textContent = 'Debes cargar un valor';
+    inpO.classList.add('invalid');
+    return;
+  }
+  // 4) Confirmación
   errO.textContent = '';
   inpO.classList.remove('invalid');
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
-  var raw = v.replace(/\./g,'').replace(',','.');
-  var oNum = parseFloat(raw) || 0;
-  otrosIngresos.push(oNum);
+  // 5) Guardar y refrescar
+  otrosIngresos.push(num);
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-
-  // UI
   inpO.value = formatRL('');
   refreshSaldo();
 };
+
 
 
 
