@@ -185,36 +185,58 @@ function refreshSaldo() {
         });
       });
 
-      // Ingresos
-btnI.onclick = function(){
+// --- Guardar Ingresos sin validar formato, solo vacío ---
+btnI.onclick = function() {
   var v = inpI.value.trim();
-  // Validación
-  if(!validNum(v) || parseFloat(v.replace(/\./g,'').replace(',','.')) <= 0){
+  if (!v) {
     errI.textContent = 'Debes cargar un valor';
     inpI.classList.add('invalid');
     return;
   }
-  if(!confirm('¿Desea guardar el monto ingresado?')) return;
+  errI.textContent = '';
+  inpI.classList.remove('invalid');
+  if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
-  // Sanitizar y guardar ingreso
   var raw = v.replace(/\./g,'').replace(',','.');
   ingresos = parseFloat(raw) || 0;
   localStorage.setItem(keyI, ingresos);
 
-  // **Reinicio total** de gastos y otrosIngresos
+  // Reinicio de gastos y otrosIngresos
   gastos = [];
   otrosIngresos = [];
   localStorage.setItem(keyG, JSON.stringify(gastos));
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
 
-  // Limpieza de UI
+  // UI
   inpI.disabled = true;
   btnI.disabled = true;
-  // Asume que tienes funciones refreshGastos() y refreshMeses()
-  refreshGastos();  
+  refreshGastos();
   refreshMeses();
   refreshSaldo();
 };
+
+// --- Agregar Otros ingresos sin validar formato, solo vacío ---
+btnO.onclick = function() {
+  var v = inpO.value.trim();
+  if (!v) {
+    errO.textContent = 'Debes cargar un valor';
+    inpO.classList.add('invalid');
+    return;
+  }
+  errO.textContent = '';
+  inpO.classList.remove('invalid');
+  if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
+
+  var raw = v.replace(/\./g,'').replace(',','.');
+  var oNum = parseFloat(raw) || 0;
+  otrosIngresos.push(oNum);
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // UI
+  inpO.value = formatRL('');
+  refreshSaldo();
+};
+
 
 
 btnGuardar.onclick = function() {
