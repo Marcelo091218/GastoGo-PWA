@@ -142,11 +142,26 @@ function formatRL(str) {
       }).join('')||'<em>No hay meses finalizados</em>';
       document.getElementById('listaMeses').innerHTML=html;
     }
-    function refreshSaldo(){
-      var tg=gastos.reduce(function(s,g){return s+(parseFloat(g.monto)||0);},0);
-      var to=otrosIngresos.reduce(function(s,o){return s+(parseFloat(o)||0);},0);
-      saldoEl.textContent=moneda+formatRL((ingresos+to-tg).toString());
-    }
+function refreshSaldo() {
+  // Bases limpias
+  var totalGastos = gastos.reduce(function(s, g){
+    return s + (parseFloat(g.monto) || 0);
+  }, 0);
+  var totalOtros = otrosIngresos.reduce(function(s, o){
+    return s + (parseFloat(o) || 0);
+  }, 0);
+  var ingresoBase = parseFloat(ingresos) || 0;
+
+  // Cálculo puro
+  var restanteNum = ingresoBase + totalOtros - totalGastos;
+
+  // Formateo final
+  var formatted = formatRL(restanteNum.toString());
+
+  // Mostrar
+  saldoEl.textContent = moneda + formatted;
+}
+
 
     function init(){
       // Referencias DOM
@@ -171,22 +186,36 @@ function formatRL(str) {
       });
 
       // Ingresos
-      btnI.onclick=function(){
-        var v=inpI.value.replace(/\./g,'').replace(',', '.');
-        if(parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;} errI.textContent=''; inpI.classList.remove('invalid');
-        if(confirm('¿Desea guardar el monto ingresado?')){ingresos=parseFloat(v);localStorage.setItem(keyI,ingresos);inpI.disabled=true;btnI.disabled=true;refreshSaldo();}
-      };
-      btnO.onclick=function(){
-        var v=inpO.value.replace(/\./g,'').replace(',', '.');
-        if(parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;} errO.textContent=''; inpO.classList.remove('invalid');
-        if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=formatRL('');refreshSaldo();}
-      };
-// Gasto: listener corregido
-[montoInput, subcatInput].forEach(function(el) {
-  el.oninput = function() {
-    btnGuardar.disabled = !(montoInput.value && subcatInput.value);
-  };
-});
+btnI.onclick = function(){
+  var v = inpI.value.trim();
+  // Validación
+  if(!validNum(v) || parseFloat(v.replace(/\./g,'').replace(',','.')) <= 0){
+    errI.textContent = 'Debes cargar un valor';
+    inpI.classList.add('invalid');
+    return;
+  }
+  if(!confirm('¿Desea guardar el monto ingresado?')) return;
+
+  // Sanitizar y guardar ingreso
+  var raw = v.replace(/\./g,'').replace(',','.');
+  ingresos = parseFloat(raw) || 0;
+  localStorage.setItem(keyI, ingresos);
+
+  // **Reinicio total** de gastos y otrosIngresos
+  gastos = [];
+  otrosIngresos = [];
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // Limpieza de UI
+  inpI.disabled = true;
+  btnI.disabled = true;
+  // Asume que tienes funciones refreshGastos() y refreshMeses()
+  refreshGastos();  
+  refreshMeses();
+  refreshSaldo();
+};
+
 
 btnGuardar.onclick = function() {
   // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
