@@ -188,6 +188,9 @@ function refreshSaldo() {
       subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); btnGuardar=document.getElementById('btnGuardar');
 
       loadData();
+      // Fijar fecha al día de hoy
+      fechaInput.value = new Date().toISOString().slice(0,10);
+
       // Inicial UI
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
