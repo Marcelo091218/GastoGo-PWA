@@ -104,14 +104,20 @@ Para limpiar la PWA en Android:
       }
     }
 
-    function formatRL(str) {
-      var digits = str.replace(/\D/g,'');
-      digits = digits.slice(-10);
-      while(digits.length<3) digits='0'+digits;
-      var intPart = digits.slice(0,-2).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-      var decPart = digits.slice(-2);
-      return intPart + ',' + decPart;
-    }
+function formatRL(str) {
+  var digits = str.replace(/\D/g,'');
+  digits = digits.slice(-10);
+  while (digits.length < 3) digits = '0' + digits;
+  // separa parte entera y decimales
+  var intPart = digits.slice(0, -2);
+  var decPart = digits.slice(-2);
+  // elimina ceros iniciales, pero deja al menos un cero
+  intPart = intPart.replace(/^0+(?=\d)/, '');
+  // añade separadores de miles
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return intPart + ',' + decPart;
+}
+
 
     function fmt(v){return parseFloat(v).toFixed(2);}    
     function validNum(str){return /^\d+(\,\d{1,2})?$/.test(str);}    
