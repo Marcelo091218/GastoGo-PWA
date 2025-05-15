@@ -201,28 +201,33 @@ function refreshSaldo() {
       });
 
 // --- Guardar Ingresos sin validar formato, solo vacío ---
-btnI.onclick = function() {
+btnI.onclick = function(){
   var v = inpI.value.trim();
-  if (!v) {
+  // 1) Validar no vacío y no 0
+  var rawTest = v.replace(/\./g,'').replace(',','.');
+  var nTest = parseFloat(rawTest) || 0;
+  if (!v || nTest <= 0) {
     errI.textContent = 'Debes cargar un valor';
     inpI.classList.add('invalid');
     return;
   }
+  // 2) Limpiar error
   errI.textContent = '';
   inpI.classList.remove('invalid');
+  // 3) Confirmación
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
-  var raw = v.replace(/\./g,'').replace(',','.');
-  ingresos = parseFloat(raw) || 0;
+  // 4) Guardar ingreso
+  ingresos = nTest;
   localStorage.setItem(keyI, ingresos);
 
-  // Reinicio de gastos y otrosIngresos
+  // 5) Reiniciar gastos y otros
   gastos = [];
   otrosIngresos = [];
   localStorage.setItem(keyG, JSON.stringify(gastos));
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
 
-  // UI
+  // 6) Actualizar UI
   inpI.disabled = true;
   btnI.disabled = true;
   refreshGastos();
@@ -230,27 +235,33 @@ btnI.onclick = function() {
   refreshSaldo();
 };
 
+
 // --- Agregar Otros ingresos sin validar formato, solo vacío ---
-btnO.onclick = function() {
+btnO.onclick = function(){
   var v = inpO.value.trim();
-  if (!v) {
+  // 1) Validar no vacío y no 0
+  var rawTest = v.replace(/\./g,'').replace(',','.');
+  var nTest = parseFloat(rawTest) || 0;
+  if (!v || nTest <= 0) {
     errO.textContent = 'Debes cargar un valor';
     inpO.classList.add('invalid');
     return;
   }
+  // 2) Limpiar error
   errO.textContent = '';
   inpO.classList.remove('invalid');
+  // 3) Confirmación
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
-  var raw = v.replace(/\./g,'').replace(',','.');
-  var oNum = parseFloat(raw) || 0;
-  otrosIngresos.push(oNum);
+  // 4) Guardar otros ingresos
+  otrosIngresos.push(nTest);
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
 
-  // UI
+  // 5) UI
   inpO.value = formatRL('');
   refreshSaldo();
 };
+
 
 
 
