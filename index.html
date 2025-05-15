@@ -7,7 +7,7 @@ Para limpiar la PWA en Android:
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>GastoGo</title>
+  <title>GastoGo.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <style>
@@ -18,7 +18,7 @@ Para limpiar la PWA en Android:
     h2 { margin-top:0; }
     .flex { display:flex; align-items:center; }
     .flex > * { margin-right:8px; }
-    .input-group { display:flex; align-items:center; position:relative; }
+    .input-group { display:flex; align-items:center; }
     .input-group span { margin-right:8px; color:#666; pointer-events:none; }
     .error-msg { font-size:0.8rem; color:red; margin-top:-0.5rem; margin-bottom:0.5rem; }
     input.invalid { border-color:red; }
@@ -28,24 +28,24 @@ Para limpiar la PWA en Android:
   </style>
 </head>
 <body>
-  <header><h1>GastoGo</h1></header>
+  <header><h1>GastoGo.</h1></header>
   <main>
     <!-- Ingresos -->
     <section id="secIngresos">
       <h2>Definir Ingresos</h2>
       <div class="input-group">
         <span>$</span>
-        <input type="text" id="inputIngresos" placeholder="0.00" value="0.00" />
+        <input type="text" id="inputIngresos" maxlength="13" placeholder="0,00" />
       </div>
       <div id="errorIngresos" class="error-msg"></div>
       <button type="button" id="btnSetIngresos">Guardar</button>
       <div class="input-group">
         <span>$</span>
-        <input type="text" id="inputOtrosIngresos" placeholder="0.00" value="0.00" />
+        <input type="text" id="inputOtrosIngresos" maxlength="13" placeholder="0,00" />
       </div>
       <div id="errorOtros" class="error-msg"></div>
       <button type="button" id="btnAddOtrosIngresos">Agregar Otros</button>
-      <div class="saldo">Saldo restante: <span id="saldoRestante">$0.00</span></div>
+      <div class="saldo">Saldo restante: <span id="saldoRestante">$0,00</span></div>
       <button type="button" id="btnFinalizarMes">Finalizar Mes</button>
     </section>
 
@@ -53,7 +53,10 @@ Para limpiar la PWA en Android:
     <section id="secGastos">
       <h2>Registrar gasto</h2>
       <input type="date" id="fecha" />
-      <input type="number" id="monto" placeholder="Monto" />
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="monto" maxlength="13" placeholder="0,00" />
+      </div>
       <div class="flex">
         <select id="categoria">
           <option disabled selected value="">-- Seleccionar categoría --</option>
@@ -100,14 +103,25 @@ Para limpiar la PWA en Android:
         localStorage.setItem(keyC,JSON.stringify(categorias));
       }
     }
+
+    function formatRL(str) {
+      var digits = str.replace(/\D/g,'');
+      digits = digits.slice(-10);
+      while(digits.length<3) digits='0'+digits;
+      var intPart = digits.slice(0,-2).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+      var decPart = digits.slice(-2);
+      return intPart + ',' + decPart;
+    }
+
     function fmt(v){return parseFloat(v).toFixed(2);}    
-    function validNum(str){return /^\d+(\.\d{1,2})?$/.test(str);}    
+    function validNum(str){return /^\d+(\,\d{1,2})?$/.test(str);}    
+
     function refreshCategories(){
       selCat.innerHTML='<option disabled selected value="">-- Seleccionar categoría --</option>'+
         categorias.map(function(c){return '<option>'+c+'</option>';}).join('');
     }
     function refreshGastos(){
-      var html=gastos.map(function(g){return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+fmt(g.monto)+'</div>';}).join('')||'<em>No hay gastos</em>';
+      var html=gastos.map(function(g){return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+g.monto+'</div>';}).join('')||'<em>No hay gastos</em>';
       document.getElementById('listaGastos').innerHTML=html;
     }
     function refreshMeses(){
@@ -116,8 +130,8 @@ Para limpiar la PWA en Android:
         var to=m.otrosIngresos.reduce(function(s,o){return s+parseFloat(o);},0);
         var sal=(m.ingresos+to-tg).toFixed(2);
         return '<div class="hist-item"><strong>'+new Date(m.fecha).toLocaleDateString()+'</strong><br>'+
-          'Ingresos: '+moneda+fmt(m.ingresos)+' + Otros: '+moneda+fmt(to)+'<br>'+
-          'Gastos: '+moneda+fmt(tg)+' | Saldo: '+moneda+sal+
+          'Ingresos: '+moneda+parseFloat(m.ingresos).toFixed(2)+' + Otros: '+moneda+to.toFixed(2)+'<br>'+
+          'Gastos: '+moneda+tg.toFixed(2)+' | Saldo: '+moneda+sal+
           ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
       }).join('')||'<em>No hay meses finalizados</em>';
       document.getElementById('listaMeses').innerHTML=html;
@@ -125,7 +139,7 @@ Para limpiar la PWA en Android:
     function refreshSaldo(){
       var tg=gastos.reduce(function(s,g){return s+(parseFloat(g.monto)||0);},0);
       var to=otrosIngresos.reduce(function(s,o){return s+(parseFloat(o)||0);},0);
-      saldoEl.textContent=moneda+fmt(ingresos+to-tg);
+      saldoEl.textContent=moneda+formatRL((ingresos+to-tg).toString());
     }
 
     function init(){
@@ -139,56 +153,36 @@ Para limpiar la PWA en Android:
 
       loadData();
       // Inicial UI
-      inpI.value=fmt(ingresos); inpO.value=fmt(0);
+      inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
-// Función helper para formatear container de centavos
-function formatRL(str) {
-  // Nos quedamos solo con dígitos
-  var digits = str.replace(/\D/g, '');
-  // Tomamos los últimos 10 (8 enteros + 2 decimales)
-  digits = digits.slice(-10);
-  // Rellenamos a 3 dígitos mínimo (para siempre tener "0c,cc")
-  while (digits.length < 3) digits = '0' + digits;
-  // Cortamos decimales
-  var intPart = digits.slice(0, -2);
-  var decPart = digits.slice(-2);
-  // Miles con puntos
-  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return intPart + ',' + decPart;
-}
-
-// Asignamos listener de formateo a izquierda→derecha
-[inpIngresos, inpOtros, montoInput].forEach(function(el) {
-  // Inicializamos en "0,00"
-  el.value = formatRL('');
-  el.addEventListener('input', function(e) {
-    e.target.value = formatRL(e.target.value);
-  });
-});
-
+      // Formateo dinámico derecha→izquierda
+      [inpI, inpO, montoInput].forEach(function(el){
+        el.addEventListener('input', function(e) {
+          e.target.value = formatRL(e.target.value);
+        });
+      });
 
       // Ingresos
       btnI.onclick=function(){
-        var v=inpI.value.trim();
-        if(!validNum(v)||parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;}
-        errI.textContent=''; inpI.classList.remove('invalid');
+        var v=inpI.value.replace(/\./g,'').replace(',', '.');
+        if(parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;} errI.textContent=''; inpI.classList.remove('invalid');
         if(confirm('¿Desea guardar el monto ingresado?')){ingresos=parseFloat(v);localStorage.setItem(keyI,ingresos);inpI.disabled=true;btnI.disabled=true;refreshSaldo();}
       };
       btnO.onclick=function(){
-        var v=inpO.value.trim();
-        if(!validNum(v)||parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;}
-        errO.textContent=''; inpO.classList.remove('invalid');
-        if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=fmt(0);refreshSaldo();}
+        var v=inpO.value.replace(/\./g,'').replace(',', '.');
+        if(parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;} errO.textContent=''; inpO.classList.remove('invalid');
+        if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=formatRL('');refreshSaldo();}
       };
 
       // Gasto
       [montoInput, subcatInput].forEach(function(el){el.oninput=function(){btnGuardar.disabled=!(montoInput.value&&subcatInput.value);};});
       btnGuardar.onclick=function(){
-        var g={fecha:fechaInput.value, monto:montoInput.value, categoria:selCat.value, subcat:subcatInput.value, obs:obsInput.value};
+        var v=montoInput.value.replace(/\./g,'').replace(',', '.');
+        var g={fecha:fechaInput.value, monto: parseFloat(v).toFixed(2), categoria:selCat.value, subcat:subcatInput.value, obs:obsInput.value};
         gastos.unshift(g);localStorage.setItem(keyG,JSON.stringify(gastos));refreshGastos();refreshSaldo();
-        montoInput.value=''; subcatInput.value=''; obsInput.value=''; btnGuardar.disabled=true;
+        montoInput.value=formatRL(''); subcatInput.value=''; obsInput.value=''; btnGuardar.disabled=true;
       };
 
       // Categorías
@@ -200,7 +194,8 @@ function formatRL(str) {
         historial.unshift({ingresos:ingresos,otrosIngresos:otrosIngresos.slice(),gastos:gastos.slice(),fecha:new Date().toISOString()});
         localStorage.setItem(keyH,JSON.stringify(historial));gastos=[];ingresos=0;otrosIngresos=[];
         localStorage.removeItem(keyG);localStorage.removeItem(keyI);localStorage.removeItem(keyO);
-        inpI.value='0.00';inpI.disabled=false;btnI.disabled=false;
+        inpI.value=formatRL('');inpO.value=formatRL(''); montoInput.value=formatRL('');
+        inpI.disabled=false;btnI.disabled=false;
         refreshGastos();refreshMeses();refreshSaldo();alert('Mes finalizado.');
       };
 
