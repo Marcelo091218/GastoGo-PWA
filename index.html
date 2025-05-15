@@ -200,40 +200,21 @@ function refreshSaldo() {
         });
       });
 
+// --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function() {
   var v = inpI.value.trim();
-  // 1) Validar vacío
   if (!v) {
     errI.textContent = 'Debes cargar un valor';
     inpI.classList.add('invalid');
     return;
   }
-  // 2) Sanitizar texto a número
-  var raw = v.replace(/\./g,'').replace(',','.');
-  var num = parseFloat(raw) || 0;
-  // 3) Validar que no sea cero
-  if (num <= 0) {
-    errI.textContent = 'Debes cargar un valor';
-    inpI.classList.add('invalid');
-    return;
-  }
-  // 4) Confirmación
   errI.textContent = '';
   inpI.classList.remove('invalid');
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
-  // 5) Guardar ingreso y resetear gastos/otros
-  ingresos = num;
+  var raw = v.replace(/\./g,'').replace(',','.');
+  ingresos = parseFloat(raw) || 0;
   localStorage.setItem(keyI, ingresos);
-  gastos = []; otrosIngresos = [];
-  localStorage.setItem(keyG, JSON.stringify(gastos));
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-
-  // 6) UI
-  inpI.disabled = true; btnI.disabled = true;
-  refreshGastos(); refreshMeses(); refreshSaldo();
-};
-
 
   // Reinicio de gastos y otrosIngresos
   gastos = [];
@@ -249,35 +230,27 @@ btnI.onclick = function() {
   refreshSaldo();
 };
 
+// --- Agregar Otros ingresos sin validar formato, solo vacío ---
 btnO.onclick = function() {
   var v = inpO.value.trim();
-  // 1) Validar vacío
   if (!v) {
     errO.textContent = 'Debes cargar un valor';
     inpO.classList.add('invalid');
     return;
   }
-  // 2) Sanitizar y parsear
-  var raw = v.replace(/\./g,'').replace(',','.');
-  var num = parseFloat(raw) || 0;
-  // 3) Validar que no sea cero
-  if (num <= 0) {
-    errO.textContent = 'Debes cargar un valor';
-    inpO.classList.add('invalid');
-    return;
-  }
-  // 4) Confirmación
   errO.textContent = '';
   inpO.classList.remove('invalid');
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
-  // 5) Guardar y refrescar
-  otrosIngresos.push(num);
+  var raw = v.replace(/\./g,'').replace(',','.');
+  var oNum = parseFloat(raw) || 0;
+  otrosIngresos.push(oNum);
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // UI
   inpO.value = formatRL('');
   refreshSaldo();
 };
-
 
 
 
@@ -315,33 +288,15 @@ btnGuardar.onclick = function() {
       btnAddCat.onclick=function(){var n=prompt('Nueva categoría:')||'';n=n.trim();if(n&&categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}};
       btnDelCat.onclick=function(){var c=selCat.value;if(c&&confirm('Eliminar '+c+'?')){categorias=categorias.filter(function(i){return i!==c;});localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();}};
 
-btnFin.onclick = function() {
-  if (!confirm('¿Estás seguro que deseas Finalizar el mes?')) {
-    return; // el usuario canceló
-  }
-  // Si acepta, ejecuta la lógica de finalización:
-  historial.unshift({
-    ingresos: ingresos,
-    otrosIngresos: otrosIngresos,
-    gastos: gastos,
-    fecha: new Date().toISOString()
-  });
-  localStorage.setItem(keyH, JSON.stringify(historial));
-  // Reset de datos
-  gastos = [];
-  ingresos = 0;
-  otrosIngresos = [];
-  localStorage.removeItem(keyG);
-  localStorage.removeItem(keyI);
-  localStorage.removeItem(keyO);
-  // UI
-  inpI.value = formatRL('');
-  inpI.disabled = false; btnI.disabled = false; errI.textContent = '';
-  inpO.value = formatRL('');
-  refreshGastos();
-  refreshMeses();
-  refreshSaldo();
-};
+      // Finalizar Mes
+      btnFin.onclick=function(){
+        historial.unshift({ingresos:ingresos,otrosIngresos:otrosIngresos.slice(),gastos:gastos.slice(),fecha:new Date().toISOString()});
+        localStorage.setItem(keyH,JSON.stringify(historial));gastos=[];ingresos=0;otrosIngresos=[];
+        localStorage.removeItem(keyG);localStorage.removeItem(keyI);localStorage.removeItem(keyO);
+        inpI.value=formatRL('');inpO.value=formatRL(''); montoInput.value=formatRL('');
+        inpI.disabled=false;btnI.disabled=false;
+        refreshGastos();refreshMeses();refreshSaldo();alert('Mes finalizado.');
+      };
 
       // Borrar Mes
       window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
