@@ -181,15 +181,42 @@ function formatRL(str) {
         if(parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;} errO.textContent=''; inpO.classList.remove('invalid');
         if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=formatRL('');refreshSaldo();}
       };
+// Gasto: listener corregido
+[montoInput, subcatInput].forEach(function(el) {
+  el.oninput = function() {
+    btnGuardar.disabled = !(montoInput.value && subcatInput.value);
+  };
+});
 
-      // Gasto
-      [montoInput, subcatInput].forEach(function(el){el.oninput=function(){btnGuardar.disabled=!(montoInput.value&&subcatInput.value);};});
-      btnGuardar.onclick=function(){
-        var v=montoInput.value.replace(/\./g,'').replace(',', '.');
-        var g={fecha:fechaInput.value, monto: parseFloat(v).toFixed(2), categoria:selCat.value, subcat:subcatInput.value, obs:obsInput.value};
-        gastos.unshift(g);localStorage.setItem(keyG,JSON.stringify(gastos));refreshGastos();refreshSaldo();
-        montoInput.value=formatRL(''); subcatInput.value=''; obsInput.value=''; btnGuardar.disabled=true;
-      };
+btnGuardar.onclick = function() {
+  // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
+  var raw = montoInput.value
+    .replace(/\./g, '')   // elimina puntos de miles
+    .replace(',', '.');   // convierte coma decimal a punto
+  var montoNum = parseFloat(raw) || 0;
+
+  // 2) Crear el objeto gasto guardando un número (no string)
+  var g = {
+    fecha:     fechaInput.value,
+    monto:     montoNum,    // guardamos el número puro
+    categoria: selCat.value,
+    subcat:    subcatInput.value,
+    obs:       obsInput.value
+  };
+
+  // 3) Almacenar y refrescar UI
+  gastos.unshift(g);
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  refreshGastos();
+  refreshSaldo();
+
+  // 4) Limpiar campos y deshabilitar botón
+  montoInput.value      = formatRL('');  
+  subcatInput.value     = '';
+  obsInput.value        = '';
+  btnGuardar.disabled   = true;
+};
+
 
       // Categorías
       btnAddCat.onclick=function(){var n=prompt('Nueva categoría:')||'';n=n.trim();if(n&&categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}};
