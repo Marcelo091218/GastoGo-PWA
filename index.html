@@ -176,11 +176,22 @@ function formatRL(str) {
         if(parseFloat(v)<=0){errI.textContent='Debes cargar un valor';inpI.classList.add('invalid');return;} errI.textContent=''; inpI.classList.remove('invalid');
         if(confirm('¿Desea guardar el monto ingresado?')){ingresos=parseFloat(v);localStorage.setItem(keyI,ingresos);inpI.disabled=true;btnI.disabled=true;refreshSaldo();}
       };
-      btnO.onclick=function(){
-        var v=inpO.value.replace(/\./g,'').replace(',', '.');
-        if(parseFloat(v)<=0){errO.textContent='Debes cargar un valor';inpO.classList.add('invalid');return;} errO.textContent=''; inpO.classList.remove('invalid');
-        if(confirm('¿Desea agregar este monto a Otros Ingresos?')){otrosIngresos.push(parseFloat(v));localStorage.setItem(keyO,JSON.stringify(otrosIngresos));inpO.value=formatRL('');refreshSaldo();}
-      };
+  btnO.onclick = function(){
+  var v = inpO.value.trim();
+  if(!validNum(v)||parseFloat(v.replace(/\./g,'').replace(',','.'))<=0){
+    errO.textContent = 'Debes cargar un valor';
+    inpO.classList.add('invalid');
+    return;
+  }
+  if(!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
+  var raw = v.replace(/\./g,'').replace(',','.');
+  var oNum = parseFloat(raw) || 0;
+  otrosIngresos.push(oNum);
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+  inpO.value = formatRL('');
+  refreshSaldo();
+};
+
 // Gasto: listener corregido
 [montoInput, subcatInput].forEach(function(el) {
   el.oninput = function() {
@@ -188,12 +199,25 @@ function formatRL(str) {
   };
 });
 
-btnGuardar.onclick = function() {
-  // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
-  var raw = montoInput.value
-    .replace(/\./g, '')   // elimina puntos de miles
-    .replace(',', '.');   // convierte coma decimal a punto
-  var montoNum = parseFloat(raw) || 0;
+btnI.onclick = function(){
+  var v = inpI.value.trim();
+  // Validación como antes
+  if(!validNum(v)||parseFloat(v.replace(/\./g,'').replace(',','.'))<=0){
+    errI.textContent = 'Debes cargar un valor';
+    inpI.classList.add('invalid');
+    return;
+  }
+  // Confirmación
+  if(!confirm('¿Desea guardar el monto ingresado?')) return;
+  // Sanitizar para parse
+  var raw = v.replace(/\./g,'').replace(',','.');
+  ingresos = parseFloat(raw) || 0;
+  localStorage.setItem(keyI, ingresos);
+  inpI.disabled = true;
+  btnI.disabled = true;
+  refreshSaldo();
+};
+
 
   // 2) Crear el objeto gasto guardando un número (no string)
   var g = {
