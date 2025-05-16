@@ -46,9 +46,34 @@ Para limpiar la PWA en Android:
      </header>
 
      <div class="card-body">
-       <!-- aquí van tus inputs y botones de ingresos, sin cambios -->
-     </div>
-   </div>
+  <div class="grid-2">
+    <div class="field">
+      <div class="input-addon">
+        <span class="addon">$</span>
+        <input id="inputIngresos" type="text" placeholder="Ingrese los ingresos mensuales">
+      </div>
+    </div>
+    <div class="field">
+      <button id="btnSetIngresos" class="btn-outline">Guardar</button>
+    </div>
+    <!-- Mismo para Otros Ingresos -->
+    <div class="field">
+      <div class="input-addon">
+        <span class="addon">$</span>
+        <input id="inputOtrosIngresos" type="text" placeholder="Opcional: meta de ahorro">
+      </div>
+    </div>
+    <div class="field">
+      <button id="btnAddOtrosIngresos" class="btn-outline">Agregar Otros</button>
+    </div>
+    <!-- Saldo y Finalizar Mes -->
+    <div class="field full-width">
+      <button id="btnFinalizarMes" class="btn-primary">Finalizar Mes</button>
+      <span id="saldoRestante" class="saldo">Saldo restante: $0,00</span>
+    </div>
+  </div>
+</div>
+
  </section>
   
       <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
