@@ -285,16 +285,15 @@ btnDelSubcat.addEventListener('click', () => {
       [inpI, inpO, montoInput].forEach(function(el){
         el.addEventListener('input', function(e) {
           e.target.value = formatRL(e.target.value);
-          // Toggle para habilitar btnI sólo si hay valor distinto de “0,00”
+        });
+      });
+// Toggle para habilitar “Guardar Ingresos” sólo si inpI tiene un valor > “0,00”
 function toggleSetIngresos() {
   btnI.disabled = !inpI.value || inpI.value === '0,00';
 }
 inpI.addEventListener('input', toggleSetIngresos);
 // Estado inicial
 toggleSetIngresos();
-
-        });
-      });
 
 // --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function(){
