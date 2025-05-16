@@ -247,14 +247,34 @@ btnDelSubcat.addEventListener('click', () => {
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
-     function toggleGuardarGasto() {
-     btnGuardar.disabled = !(montoInput.value && selCat.value);
-      }
-     // ② Asociar el toggle a los eventos de input y cambio de categoría
-     montoInput.addEventListener('input', toggleGuardarGasto);
-     selCat.addEventListener('change', toggleGuardarGasto);
-     // ③ Estado inicial
-     toggleGuardarGasto();
+   function toggleGuardarGasto() {
+  // 1) El campo no puede estar vacío ni ser "0,00"
+  const v = montoInput.value;
+  if (!v || v === '0,00') {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 2) Sanitizar y parsear el valor
+  const raw = v.replace(/\./g, '').replace(',', '.');
+  const num = parseFloat(raw) || 0;
+  
+  // 3) Si es cero o NaN, deshabilita
+  if (num <= 0) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 4) También debe haber categoría
+  if (!selCat.value) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 5) Si pasamos todas las validaciones, habilita
+  btnGuardar.disabled = false;
+}
+
 
 
       // Formateo dinámico derecha→izquierda
