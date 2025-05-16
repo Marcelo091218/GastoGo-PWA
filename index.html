@@ -180,10 +180,6 @@ function refreshSaldo() {
 
     function init(){
       // Referencias DOM
-      const fechaInput   = document.getElementById('fecha');
-      const montoInput   = document.getElementById('monto');
-      const selCat       = document.getElementById('categoria');
-      const btnGuardar   = document.getElementById('btnGuardar');
       inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); errI=document.getElementById('errorIngresos');
       inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); errO=document.getElementById('errorOtros');
       saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
@@ -191,7 +187,10 @@ function refreshSaldo() {
       selCat=document.getElementById('categoria'); btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
       subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); btnGuardar=document.getElementById('btnGuardar');
     
-
+      const fechaInput   = document.getElementById('fecha');
+      const montoInput   = document.getElementById('monto');
+      const selCat       = document.getElementById('categoria');
+      const btnGuardar   = document.getElementById('btnGuardar');
 
       
       loadData();
