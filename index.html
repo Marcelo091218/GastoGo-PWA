@@ -295,6 +295,15 @@ inpI.addEventListener('input', toggleSetIngresos);
 // Estado inicial
 toggleSetIngresos();
 
+// Toggle para habilitar “Agregar Otros ingresos”
+function toggleAddOtros() {
+  btnO.disabled = !inpO.value || inpO.value === '0,00';
+}
+inpO.addEventListener('input', toggleAddOtros);
+// Estado inicial
+toggleAddOtros();
+
+      
 // --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function(){
   var v = inpI.value.trim();
@@ -330,15 +339,8 @@ btnO.onclick = function(){
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-  if (!v || nTest <= 0) {
-    errO.textContent = 'Debes cargar un valor';
-    inpO.classList.add('invalid');
-    return;
   }
-  // 2) Limpiar error
-  errO.textContent = '';
-  inpO.classList.remove('invalid');
-  // 3) Confirmación
+  // 2) Confirmación
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
   // 4) Guardar otros ingresos
