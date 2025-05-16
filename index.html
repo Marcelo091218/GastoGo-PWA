@@ -45,34 +45,40 @@ Para limpiar la PWA en Android:
        <h2>Definir Ingresos</h2>
      </header>
 
-     <div class="card-body">
+<div class="card-body">
   <div class="grid-2">
+    <!-- Ingresos -->
     <div class="field">
+      <label for="inputIngresos">Ingresos Mensuales</label>
       <div class="input-addon">
         <span class="addon">$</span>
-        <input id="inputIngresos" type="text" placeholder="Ingrese los ingresos mensuales">
+        <input type="text" id="inputIngresos" placeholder="0,00">
       </div>
     </div>
     <div class="field">
-      <button id="btnSetIngresos" class="btn-outline">Guardar</button>
+      <button type="button" id="btnSetIngresos" class="btn-outline">Guardar</button>
     </div>
-    <!-- Mismo para Otros Ingresos -->
+
+    <!-- Otros ingresos -->
     <div class="field">
+      <label for="inputOtrosIngresos">Otros Ingresos</label>
       <div class="input-addon">
         <span class="addon">$</span>
-        <input id="inputOtrosIngresos" type="text" placeholder="Opcional: meta de ahorro">
+        <input type="text" id="inputOtrosIngresos" placeholder="0,00">
       </div>
     </div>
     <div class="field">
-      <button id="btnAddOtrosIngresos" class="btn-outline">Agregar Otros</button>
+      <button type="button" id="btnAddOtrosIngresos" class="btn-outline">Agregar Otros</button>
     </div>
-    <!-- Saldo y Finalizar Mes -->
+
+    <!-- Finalizar mes + Saldo -->
     <div class="field full-width">
-      <button id="btnFinalizarMes" class="btn-primary">Finalizar Mes</button>
-      <span id="saldoRestante" class="saldo">Saldo restante: $0,00</span>
+      <button type="button" id="btnFinalizarMes" class="btn-primary">Finalizar Mes</button>
+      <span id="saldoRestante" class="saldo">$0,00</span>
     </div>
   </div>
 </div>
+
 
  </section>
   
