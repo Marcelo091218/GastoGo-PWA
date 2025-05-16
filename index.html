@@ -245,6 +245,10 @@ btnDelSubcat.addEventListener('click', () => {
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
+      montoInput.addEventListener('input', toggleGuardarGasto);
+      selCat.addEventListener('change', toggleGuardarGasto);
+      toggleGuardarGasto();
+
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
    function toggleGuardarGasto() {
