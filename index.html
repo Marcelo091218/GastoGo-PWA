@@ -285,6 +285,14 @@ btnDelSubcat.addEventListener('click', () => {
       [inpI, inpO, montoInput].forEach(function(el){
         el.addEventListener('input', function(e) {
           e.target.value = formatRL(e.target.value);
+          // Toggle para habilitar btnI sólo si hay valor distinto de “0,00”
+function toggleSetIngresos() {
+  btnI.disabled = !inpI.value || inpI.value === '0,00';
+}
+inpI.addEventListener('input', toggleSetIngresos);
+// Estado inicial
+toggleSetIngresos();
+
         });
       });
 
@@ -294,15 +302,8 @@ btnI.onclick = function(){
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-  if (!v || nTest <= 0) {
-    errI.textContent = 'Debes cargar un valor';
-    inpI.classList.add('invalid');
-    return;
-  }
-  // 2) Limpiar error
-  errI.textContent = '';
-  inpI.classList.remove('invalid');
-  // 3) Confirmación
+
+  // 2) Confirmación
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
   // 4) Guardar ingreso
