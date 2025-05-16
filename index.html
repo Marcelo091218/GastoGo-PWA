@@ -197,11 +197,49 @@ function refreshSaldo() {
       const fechaInput   = document.getElementById('fecha');
       const montoInput   = document.getElementById('monto');
       const btnGuardar   = document.getElementById('btnGuardar');
+      const subcat       = document.getElementById('subcat');
+      const btnAddSubcat = document.getElementById('btnAddSubcat');
+      const btnDelSubcat = document.getElementById('btnDelSubcat');
+
 
       
       loadData();
       // Fijar fecha al día de hoy
       fechaInput.value = new Date().toISOString().slice(0,10);
+      // ① Carga inicial de subcategorías
+const keyS = 'subcategorias';
+let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
+
+// ② Función para refrescar el combo de subcats
+function refreshSubcats() {
+  subcat.innerHTML = 
+    '<option disabled selected value="">– Opcional: Subcategoría –</option>' +
+    subcategorias.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+refreshSubcats();
+
+// ③ Añadir nueva subcategoría
+btnAddSubcat.addEventListener('click', () => {
+  const nueva = prompt('Nombre de la nueva subcategoría:');
+  if (nueva && !subcategorias.includes(nueva.trim())) {
+    subcategorias.push(nueva.trim());
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+    subcat.value = nueva.trim();
+  }
+});
+
+// ④ Eliminar subcategoría seleccionada
+btnDelSubcat.addEventListener('click', () => {
+  const sel = subcat.value;
+  if (!sel) return alert('Selecciona primero una subcategoría para eliminar.');
+  if (confirm(`¿Eliminar subcategoría "${sel}"?`)) {
+    subcategorias = subcategorias.filter(s => s !== sel);
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+  }
+});
+
 
       // Inicial UI
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
