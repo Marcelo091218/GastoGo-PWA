@@ -182,7 +182,7 @@ Para limpiar la PWA en Android:
     var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses', keyM='moneda';
     var gastos, ingresos, otrosIngresos, historial, categorias, moneda;
     // Elementos
-    var inpI, btnI, errI, inpO, btnO, errO, saldoEl, btnFin;
+    var inpI, btnI, inpO, btnO, saldoEl, btnFin;
     var fechaInput, montoInput, selCat, btnAddCat, btnDelCat, subcatInput, obsInput, btnGuardar;
 
     function loadData() {
@@ -264,8 +264,8 @@ function refreshSaldo() {
 
     function init(){
       // Referencias DOM
-      inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); errI=document.getElementById('errorIngresos');
-      inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); errO=document.getElementById('errorOtros');
+      inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); //errI=document.getElementById('errorIngresos');
+      inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); //errO=document.getElementById('errorOtros');
       saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
       btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
       subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); 
@@ -319,7 +319,7 @@ btnDelSubcat.addEventListener('click', () => {
 
       // Inicial UI
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
-      inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
+      inpI.disabled=false; btnI.disabled=false; //errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
       montoInput.addEventListener('input', toggleGuardarGasto);
       selCat.addEventListener('change', toggleGuardarGasto);
@@ -502,7 +502,7 @@ btnFin.onclick = function() {
   inpI.disabled   = false;
   btnI.disabled   = false;
   inpI.value      = formatRL('');
-  errI.textContent= '';
+  //errI.textContent= '';
   inpO.value      = formatRL('');
   refreshGastos();
   refreshMeses();
