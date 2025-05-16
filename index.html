@@ -74,7 +74,14 @@ Para limpiar la PWA en Android:
         <button type="button" id="btnAddCat">+</button>
         <button type="button" id="btnDelCat">–</button>
       </div>
-      <input type="text" id="subcat" placeholder="Subcategoría" />
+      <div class="flex" style="align-items:center">
+  <select id="subcat">
+    <option disabled selected value="">– Opcional: Subcategoría –</option>
+  </select>
+  <button type="button" id="btnAddSubcat" title="Agregar subcategoría" style="margin-left:8px">+</button>
+  <button type="button" id="btnDelSubcat" title="Eliminar subcategoría" style="margin-left:4px">–</button>
+</div>
+
       <textarea id="obs" placeholder="Observaciones"></textarea>
       <button type="button" id="btnGuardar">Guardar Gasto</button>
     </section>
