@@ -303,6 +303,15 @@ inpO.addEventListener('input', toggleAddOtros);
 // Estado inicial
 toggleAddOtros();
 
+      // Toggle para habilitar “Finalizar Mes” solo con ingreso base >0
+function toggleFinalizarMes() {
+  btnFin.disabled = !(parseFloat(ingresos) > 0);
+}
+inpI.addEventListener('input', toggleFinalizarMes);
+// Estado inicial (tras loadData y posible captura de ingresos previos)
+toggleFinalizarMes();
+
+
       
 // --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function(){
