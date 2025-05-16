@@ -31,6 +31,12 @@ Para limpiar la PWA en Android:
     .card header .icon { width: 24px; height: 24px; margin-right: 0.5rem; }
     .card header h2 { margin: 0; font-size: 1.25rem; }
     .card-body { padding: 1rem; }
+    /* Grid de dos columnas dentro de la card */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1rem; align-items: end; }/* Cada control en su campo */
+    .field { display: flex; flex-direction: column; }/* Para que este campo ocupe ancho completo */
+    .field.full-width { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }/* Estilos de label */
+    .field label { font-size: 0.9rem; margin-bottom: 0.25rem; color: #333; }
+
   </style>
 </head>
 <body>
