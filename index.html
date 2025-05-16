@@ -188,7 +188,6 @@ function refreshSaldo() {
     
       const fechaInput   = document.getElementById('fecha');
       const montoInput   = document.getElementById('monto');
-      const selCat       = document.getElementById('categoria');
       const btnGuardar   = document.getElementById('btnGuardar');
 
       
@@ -199,6 +198,9 @@ function refreshSaldo() {
       // Inicial UI
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
+      // REFERENCIA OBLIGATORIA antes de usar refreshCategories
+       const selCat = document.getElementById('categoria');
+
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
 
       // Formateo dinámico derecha→izquierda
