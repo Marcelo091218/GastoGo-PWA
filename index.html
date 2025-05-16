@@ -119,10 +119,47 @@ Para limpiar la PWA en Android:
     <div class="card-body">
       <div class="grid-2">
         <!-- Aquí irá el form que tenías -->
-      <input type="date" id="fecha" />
-      <div class="input-group">
-        <span>$</span>
-        <input type="text" id="monto" maxlength="13" placeholder="0,00" />
+      <!-- Fecha -->
+<div class="field">
+  <label for="fecha">Fecha</label>
+  <input type="date" id="fecha">
+</div>
+<!-- Categoría -->
+<div class="field">
+  <label for="categoria">Categoría</label>
+  <select id="categoria">
+    <option disabled selected value="">-- Seleccionar categoría --</option>
+  </select>
+</div>
+<!-- Monto -->
+<div class="field">
+  <label for="monto">Monto</label>
+  <div class="input-addon">
+    <span class="addon">$</span>
+    <input type="text" id="monto" placeholder="0,00">
+  </div>
+</div>
+<!-- Botón Guardar -->
+<div class="field">
+  <button type="button" id="btnGuardar" class="btn-outline">Guardar Gasto</button>
+</div>
+<!-- Subcategoría -->
+<div class="field">
+  <label for="subcat">Subcategoría (opcional)</label>
+  <select id="subcat">
+    <option disabled selected value="">– Opcional –</option>
+  </select>
+  <div>
+    <button type="button" id="btnAddSubcat">+</button>
+    <button type="button" id="btnDelSubcat">–</button>
+  </div>
+</div>
+<!-- Observaciones -->
+<div class="field full-width">
+  <label for="obs">Observaciones</label>
+  <textarea id="obs" rows="2" placeholder="Anotaciones (opcional)"></textarea>
+</div>
+
       </div>
       <div class="flex">
         <select id="categoria">
