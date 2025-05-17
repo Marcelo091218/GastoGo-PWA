@@ -36,7 +36,34 @@ Para limpiar la PWA en Android:
     .field { display: flex; flex-direction: column; }/* Para que este campo ocupe ancho completo */
     .field.full-width { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }/* Estilos de label */
     .field label { font-size: 0.9rem; margin-bottom: 0.25rem; color: #333; }
+     .btn-outline {
+    background: transparent;
+    border: 2px solid #007BFF;   /* azul Bootstrap */
+    color: #007BFF;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  .btn-outline:hover {
+    background: rgba(0, 123, 255, 0.1);  /* fondo azul muy suave */
+  }
 
+  /* (Opcional) Botones primarios en azul */
+  .btn-primary {
+    background: #007BFF;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover {
+    background: #0069D9;
+  }
   </style>
 </head>
 <body>
