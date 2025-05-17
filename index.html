@@ -205,8 +205,14 @@ function refreshSaldo() {
       loadData();
       // Fijar fecha al día de hoy
       fechaInput.value = new Date().toISOString().slice(0,10);
-      // Leer si el mes está finalizado
-      var finalized = localStorage.getItem(keyF) === 'true';
+      // 3.5) Leo la bandera de “mes finalizado”
+const finalized = localStorage.getItem(keyF) === 'true';
+// 3.6) Si ya hay ingresos guardados y no se finalizó, bloqueo ese campo
+if (ingresos > 0 && !finalized) {
+  inpI.disabled = true;
+  btnI.disabled = true;
+}
+
 
       // ① Carga inicial de subcategorías
 const keyS = 'subcategorias';
