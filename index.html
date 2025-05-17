@@ -514,10 +514,14 @@ btnFin.onclick = function() {
 
       // Borrar Mes
       window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
-    
-    if(document.readyState==='complete')init();else document.addEventListener('DOMContentLoaded',init);
-    if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
-  })();
+     // ——— Cierre correcto de init() y IIFE ———
++  if (document.readyState === 'complete') init();
++  else document.addEventListener('DOMContentLoaded', init);
++
++  if ('serviceWorker' in navigator) {
++    navigator.serviceWorker.register('sw.js');
++  }
++})();  // Cierra la IIFE
   </script>
 </body>
 </html>
