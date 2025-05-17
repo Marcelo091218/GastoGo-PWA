@@ -325,6 +325,9 @@ function refreshSaldo() {
       loadData();
       // Fijar fecha al día de hoy
       fechaInput.value = new Date().toISOString().slice(0,10);
+      // Aseguramos que el toggle se ejecute tras cargar ingresos desde localStorage
+toggleFinalizarMes();
+
       // ① Carga inicial de subcategorías
 const keyS = 'subcategorias';
 let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
@@ -361,7 +364,7 @@ btnDelSubcat.addEventListener('click', () => {
 
 
       // Inicial UI
-      inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
+      inpI.value = formatRL( ingresos ? (ingresos*100).toString() : '' ); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; //errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
       montoInput.addEventListener('input', toggleGuardarGasto);
@@ -458,6 +461,9 @@ btnI.onclick = function(){
   refreshGastos();
   refreshMeses();
   refreshSaldo();
+  // Re-ejecutar toggleFinalizarMes para que se habilite sin refrescar
+toggleFinalizarMes();
+
 };
 
 
