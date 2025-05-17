@@ -514,7 +514,7 @@ btnFin.onclick = function() {
 
       // Borrar Mes
       window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
-    }
+    
     if(document.readyState==='complete')init();else document.addEventListener('DOMContentLoaded',init);
     if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
   })();
