@@ -25,173 +25,47 @@ Para limpiar la PWA en Android:
     input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
     .gasto-item, .hist-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
     .saldo { font-size:1.2rem; font-weight:bold; }
-    /* Card general */
-    .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 1.5rem; overflow: hidden; }
-    .card header { display: flex; align-items: center; background: transparent; /*Transparente*/ color: #333; padding: 0.75rem 1rem; }
-    .card header .icon { width: 64px; height: 50px; margin-right: 0.5rem; }
-    .card header h2 { margin: 0; font-size: 1.25rem; }
-    .card-body { padding: 1rem; }
-    /* Grid de dos columnas dentro de la card */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1rem; align-items: end; }/* Cada control en su campo */
-    .field { display: flex; flex-direction: column; }/* Para que este campo ocupe ancho completo */
-    .field.full-width { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }/* Estilos de label */
-    .field label { font-size: 0.9rem; margin-bottom: 0.25rem; color: #333; }
-     .btn-outline {
-    background: transparent;
-    border: 2px solid #007BFF;   /* azul Bootstrap */
-    color: #007BFF;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s;
-  }
-  .btn-outline:hover {
-    background: rgba(0, 123, 255, 0.1);  /* fondo azul muy suave */
-  }
-
-  /* (Opcional) Botones primarios en azul */
-  .btn-primary {
-    background: #007BFF;
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s;
-  }
-  .btn-primary:hover {
-    background: #0069D9;
-  }
-    /* Cabecera principal */
-body > header {
-  background: #339BFF;    /* azul más claro */
-  color: #fff;            /* texto blanco para contraste */
-  padding: 1rem;
-  text-align: center;
-}
-body > header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: normal;
-}
-    /* Distinción estado deshabilitado */
-.btn-outline:disabled {
-  border-color: #ccc;
-  color: #ccc;
-  background: transparent;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.btn-primary:disabled {
-  background: #ccc;
-  color: #fff;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-
   </style>
 </head>
 <body>
   <header><h1>GastoGo...</h1></header>
   <main>
     <!-- Ingresos -->
- <section id="secIngresos">
-   <div class="card">
-     <header>
-       <!-- Aquí puedes cambiar la ruta o el nombre del icono -->
-      <img src="assets/iconWall.png" alt="" class="icon">
-       <h2>Definir Ingresos</h2>
-     </header>
-
-<div class="card-body">
-  <div class="grid-2">
-    <!-- Ingresos -->
-    <div class="field">
-      <label for="inputIngresos">Ingresos Mensuales</label>
-      <div class="input-addon">
-        <span class="addon">$</span>
-        <input type="text" id="inputIngresos" placeholder="0,00">
+    <section id="secIngresos">
+      <h2>Definir Ingresos</h2>
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="inputIngresos" maxlength="13" placeholder="0,00"/>
       </div>
-    </div>
-    <div class="field">
-      <button type="button" id="btnSetIngresos" class="btn-outline">Guardar</button>
-    </div>
-
-    <!-- Otros ingresos -->
-    <div class="field">
-      <label for="inputOtrosIngresos">Otros Ingresos</label>
-      <div class="input-addon">
-        <span class="addon">$</span>
-        <input type="text" id="inputOtrosIngresos" placeholder="0,00">
-      </div>
-    </div>
-    <div class="field">
-      <button type="button" id="btnAddOtrosIngresos" class="btn-outline">Agregar Otros</button>
-    </div>
-
-    <!-- Finalizar mes + Saldo -->
-    <div class="field full-width">
-      <button type="button" id="btnFinalizarMes" class="btn-primary">Finalizar Mes</button>
-      <span id="saldoRestante" class="saldo">$0,00</span>
-    </div>
-  </div>
-</div>
- </section>
   
-    <!-- Registrar Gasto -->
-<section id="secGastos">
-  <div class="card">
-    <header>
-    <img src="assets/iconCash.png" alt="" class="icon">
-      <h2>Registrar Gasto</h2>
-    </header>
-    <div class="card-body">
-      <div class="grid-2">
-        <!-- Aquí irá el form que tenías -->
-      <!-- Fecha -->
-<div class="field">
-  <label for="fecha">Fecha</label>
-  <input type="date" id="fecha">
-</div>
-<!-- Categoría -->
-<div class="field">
-  <label for="categoria">Categoría</label>
-  <select id="categoria">
-    <option disabled selected value="">-- Seleccionar categoría --</option>
-  </select>
-</div>
-<!-- Monto -->
-<div class="field">
-  <label for="monto">Monto</label>
-  <div class="input-addon">
-    <span class="addon">$</span>
-    <input type="text" id="monto" placeholder="0,00">
-  </div>
-</div>
-<!-- Botón Guardar -->
-<div class="field">
-  <button type="button" id="btnGuardar" class="btn-outline">Guardar Gasto</button>
-</div>
-<!-- Subcategoría -->
-<div class="field">
-  <label for="subcat">Subcategoría (opcional)</label>
-  <select id="subcat">
-    <option disabled selected value="">– Opcional –</option>
-  </select>
-  <div>
-    <button type="button" id="btnAddSubcat">+</button>
-    <button type="button" id="btnDelSubcat">–</button>
-  </div>
-</div>
-<!-- Observaciones -->
-<div class="field full-width">
-  <label for="obs">Observaciones</label>
-  <textarea id="obs" rows="2" placeholder="Anotaciones (opcional)"></textarea>
-</div>
+      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
+       Ingresa tu salario o ingresos mensuales
+      </small>
 
+      <div id="errorIngresos" class="error-msg"></div>
+      <button type="button" id="btnSetIngresos">Guardar</button>
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="inputOtrosIngresos" maxlength="13" placeholder="0,00" />
+      </div>
+
+      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
+       Ingresa tus ingresos extras
+      </small>
+      
+      <div id="errorOtros" class="error-msg"></div>
+      <button type="button" id="btnAddOtrosIngresos">Agregar Otros</button>
+      <div class="saldo">Saldo restante: <span id="saldoRestante">$0,00</span></div>
+      <button type="button" id="btnFinalizarMes">Finalizar Mes</button>
+    </section>
+
+    <!-- Registrar Gasto -->
+    <section id="secGastos">
+      <h2>Registrar gasto</h2>
+      <input type="date" id="fecha" />
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="monto" maxlength="13" placeholder="0,00" />
       </div>
       <div class="flex">
         <select id="categoria">
@@ -214,173 +88,357 @@ body > header h1 {
 
     <!-- Historial de Gastos -->
     <section id="secHistorial">
-  <div class="card">
-    <header>
-     <img src="assets/iconTime.png" alt="" class="icon">
       <h2>Historial de Gastos</h2>
-    </header>
       <div id="listaGastos"></div>
     </section>
 
     <!-- Historial de Meses -->
     <section id="secHistorialMeses">
-  <div class="card">
-    <header>
-        <img src="assets/iconCalend.png" alt="" class="icon">
       <h2>Historial de Meses Finalizados</h2>
-    </header>
       <div id="listaMeses"></div>
     </section>
   </main>
 
- <script>
-  // Helper: formatea centavos derecha→izquierda con . de miles y , decimal
-  function formatRL(str) {
-    let digits = ('' + str).replace(/\D/g, '');
-    digits = digits.slice(-10);
-    while (digits.length < 3) digits = '0' + digits;
-    let intPart = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    let decPart = digits.slice(-2);
-    return intPart + ',' + decPart;
+  <script>
+  (function() {
+    // Claves y datos
+    var selCat = document.getElementById('categoria');
+    var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses', keyM='moneda';
+    var gastos, ingresos, otrosIngresos, historial, categorias, moneda;
+    // Elementos
+    var inpI, btnI, errI, inpO, btnO, errO, saldoEl, btnFin;
+    var fechaInput, montoInput, selCat, btnAddCat, btnDelCat, subcatInput, obsInput, btnGuardar;
+
+    function loadData() {
+      gastos = JSON.parse(localStorage.getItem(keyG)||'[]');
+      ingresos = parseFloat(localStorage.getItem(keyI))||0;
+      otrosIngresos = JSON.parse(localStorage.getItem(keyO)||'[]');
+      historial = JSON.parse(localStorage.getItem(keyH)||'[]');
+      moneda = localStorage.getItem(keyM)||'$';
+      categorias = JSON.parse(localStorage.getItem(keyC)||'null');
+      if(!Array.isArray(categorias)||categorias.length===0){
+        categorias=['Vivienda','Impuestos y servicios','Vehículo','Otros gastos'];
+        localStorage.setItem(keyC,JSON.stringify(categorias));
+      }
+    }
+
+function formatRL(str) {
+  var digits = str.replace(/\D/g,'');
+  digits = digits.slice(-10);
+  while (digits.length < 3) digits = '0' + digits;
+  // separa parte entera y decimales
+  var intPart = digits.slice(0, -2);
+  var decPart = digits.slice(-2);
+  // elimina ceros iniciales, pero deja al menos un cero
+  intPart = intPart.replace(/^0+(?=\d)/, '');
+  // añade separadores de miles
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return intPart + ',' + decPart;
+}
+
+
+    function fmt(v){return parseFloat(v).toFixed(2);}    
+    function validNum(str){return /^\d+(\,\d{1,2})?$/.test(str);}    
+
+    function refreshCategories(){
+      selCat.innerHTML='<option disabled selected value="">-- Seleccionar categoría --</option>'+
+        categorias.map(function(c){return '<option>'+c+'</option>';}).join('');
+    }
+    function refreshGastos(){
+      var html=gastos.map(function(g){return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+g.monto+'</div>';}).join('')||'<em>No hay gastos</em>';
+      document.getElementById('listaGastos').innerHTML=html;
+    }
+    function refreshMeses(){
+      var html=historial.map(function(m,i){
+        var tg=m.gastos.reduce(function(s,g){return s+parseFloat(g.monto);},0);
+        var to=m.otrosIngresos.reduce(function(s,o){return s+parseFloat(o);},0);
+        var sal=(m.ingresos+to-tg).toFixed(2);
+        return '<div class="hist-item"><strong>'+new Date(m.fecha).toLocaleDateString()+'</strong><br>'+
+          'Ingresos: '+moneda+parseFloat(m.ingresos).toFixed(2)+' + Otros: '+moneda+to.toFixed(2)+'<br>'+
+          'Gastos: '+moneda+tg.toFixed(2)+' | Saldo: '+moneda+sal+
+          ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
+      }).join('')||'<em>No hay meses finalizados</em>';
+      document.getElementById('listaMeses').innerHTML=html;
+    }
+    
+function refreshSaldo() {
+  // 1) Sumar gastos y otrosIngresos tal como estaban
+  var totalGastos = gastos.reduce(function(s, g){
+    return s + (parseFloat(g.monto) || 0);
+  }, 0);
+  var totalOtros = otrosIngresos.reduce(function(s, o){
+    return s + (parseFloat(o) || 0);
+  }, 0);
+  var ingresoBase = parseFloat(ingresos) || 0;
+
+  // 2) Cálculo puro de unidades
+  var restante = ingresoBase + totalOtros - totalGastos;
+
+  // 3) Convertir a centavos (entero)
+  var cents = Math.round(restante * 100).toString();
+
+  // 4) Formatear con formatRL (que interpreta la string de centavos)
+  var formatted = formatRL(cents);
+
+  // 5) Mostrar con el símbolo de moneda
+  saldoEl.textContent = moneda + formatted;
+}
+
+
+
+    function init(){
+      // Referencias DOM
+      inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); errI=document.getElementById('errorIngresos');
+      inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); errO=document.getElementById('errorOtros');
+      saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
+      btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
+      subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); 
+    
+      const fechaInput   = document.getElementById('fecha');
+      const montoInput   = document.getElementById('monto');
+      const btnGuardar   = document.getElementById('btnGuardar');
+      const subcat       = document.getElementById('subcat');
+      const btnAddSubcat = document.getElementById('btnAddSubcat');
+      const btnDelSubcat = document.getElementById('btnDelSubcat');
+
+
+      
+      loadData();
+      // Fijar fecha al día de hoy
+      fechaInput.value = new Date().toISOString().slice(0,10);
+      // ① Carga inicial de subcategorías
+const keyS = 'subcategorias';
+let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
+
+// ② Función para refrescar el combo de subcats
+function refreshSubcats() {
+  subcat.innerHTML = 
+    '<option disabled selected value="">– Opcional: Subcategoría –</option>' +
+    subcategorias.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+refreshSubcats();
+
+// ③ Añadir nueva subcategoría
+btnAddSubcat.addEventListener('click', () => {
+  const nueva = prompt('Nombre de la nueva subcategoría:');
+  if (nueva && !subcategorias.includes(nueva.trim())) {
+    subcategorias.push(nueva.trim());
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+    subcat.value = nueva.trim();
   }
+});
 
-  document.addEventListener('DOMContentLoaded', init);
-
-  function init() {
-    // Referencias DOM
-    const inpI     = document.getElementById('inputIngresos'),
-          btnI     = document.getElementById('btnSetIngresos'),
-          inpO     = document.getElementById('inputOtrosIngresos'),
-          btnO     = document.getElementById('btnAddOtrosIngresos'),
-          fechaInput = document.getElementById('fecha'),
-          montoInput = document.getElementById('monto'),
-          selCat     = document.getElementById('categoria'),
-          btnGuardar = document.getElementById('btnGuardar'),
-          btnFin     = document.getElementById('btnFinalizarMes'),
-          subcat     = document.getElementById('subcat'),
-          btnAddSubcat = document.getElementById('btnAddSubcat'),
-          btnDelSubcat = document.getElementById('btnDelSubcat'),
-          saldoEl     = document.getElementById('saldoRestante');
-
-    // Claves de storage
-    const keyI = 'ingresos',
-          keyO = 'otrosIngresos',
-          keyG = 'gastos',
-          keyH = 'historial',
-          keyC = 'categorias',
-          keyS = 'subcategorias';
-
-    // Datos iniciales
-    let ingresos       = parseFloat(localStorage.getItem(keyI)) || 0,
-        otrosIngresos = JSON.parse(localStorage.getItem(keyO) || '[]'),
-        gastos         = JSON.parse(localStorage.getItem(keyG) || '[]'),
-        categorias     = JSON.parse(localStorage.getItem(keyC) || '[]'),
-        subcategorias  = JSON.parse(localStorage.getItem(keyS) || '[]'),
-        historial       = JSON.parse(localStorage.getItem(keyH) || '[]');
-
-    // Carga inicial de UI
-    fechaInput.value = new Date().toISOString().slice(0,10);
-    inpI.value   = formatRL( ingresos ? (ingresos*100).toString() : '' );
-    inpO.value   = formatRL('');
-    montoInput.value = formatRL('');
-    if (ingresos > 0) {
-      inpI.disabled = true;
-      btnI.disabled = true;
-    }
-
-// Formateo dinámico con tope 8 enteros + 2 decimales
-[inpI, inpO, montoInput].forEach(el => {
-  el.addEventListener('input', function(e) {
-    // 1) Extraer solo dígitos
-    let digits = e.target.value.replace(/\D/g, '');
-    // 2) Limitar a 10 dígitos (8 enteros + 2 decimales)
-    if (digits.length > 10) {
-      digits = digits.slice(0, 10);
-    }
-    // 3) Formatear y asignar
-    e.target.value = formatRL(digits);
-  });
+// ④ Eliminar subcategoría seleccionada
+btnDelSubcat.addEventListener('click', () => {
+  const sel = subcat.value;
+  if (!sel) return alert('Selecciona primero una subcategoría para eliminar.');
+  if (confirm(`¿Eliminar subcategoría "${sel}"?`)) {
+    subcategorias = subcategorias.filter(s => s !== sel);
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+  }
 });
 
 
-// --- Finalizar Mes con bloqueo/restauración de ingresos ---
-btnFin.onclick = function(){
-  if (!confirm('¿Estás seguro que deseas finalizar el mes?')) return;
-  historial.unshift({ ingresos, otrosIngresos, gastos, fecha: new Date().toISOString() });
-  localStorage.setItem(keyH, JSON.stringify(historial));
-  // Reset de datos
-  ingresos = 0; otrosIngresos = []; gastos = [];
-  localStorage.removeItem(keyI);
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+      // Inicial UI
+      inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
+      inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
+      refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
+      montoInput.addEventListener('input', toggleGuardarGasto);
+      selCat.addEventListener('change', toggleGuardarGasto);
+      toggleGuardarGasto();
+
+
+      // ① Función para habilitar/deshabilitar Guardar Gasto
+   function toggleGuardarGasto() {
+  // 1) El campo no puede estar vacío ni ser "0,00"
+  const v = montoInput.value;
+  if (!v || v === '0,00') {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 2) Sanitizar y parsear el valor
+  const raw = v.replace(/\./g, '').replace(',', '.');
+  const num = parseFloat(raw) || 0;
+  
+  // 3) Si es cero o NaN, deshabilita
+  if (num <= 0) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 4) También debe haber categoría
+  if (!selCat.value) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 5) Si pasamos todas las validaciones, habilita
+  btnGuardar.disabled = false;
+}
+
+
+
+      // Formateo dinámico derecha→izquierda
+      [inpI, inpO, montoInput].forEach(function(el){
+        el.addEventListener('input', function(e) {
+          e.target.value = formatRL(e.target.value);
+        });
+      });
+// Toggle para habilitar “Guardar Ingresos” sólo si inpI tiene un valor > “0,00”
+function toggleSetIngresos() {
+  btnI.disabled = !inpI.value || inpI.value === '0,00';
+}
+inpI.addEventListener('input', toggleSetIngresos);
+// Estado inicial
+toggleSetIngresos();
+
+// Toggle para habilitar “Agregar Otros ingresos”
+function toggleAddOtros() {
+  btnO.disabled = !inpO.value || inpO.value === '0,00';
+}
+inpO.addEventListener('input', toggleAddOtros);
+// Estado inicial
+toggleAddOtros();
+
+      // Toggle para habilitar “Finalizar Mes” solo con ingreso base >0
+function toggleFinalizarMes() {
+  btnFin.disabled = !(parseFloat(ingresos) > 0);
+}
+inpI.addEventListener('input', toggleFinalizarMes);
+// Estado inicial (tras loadData y posible captura de ingresos previos)
+toggleFinalizarMes();
+
+
+      
+// --- Guardar Ingresos sin validar formato, solo vacío ---
+btnI.onclick = function(){
+  var v = inpI.value.trim();
+  // 1) Validar no vacío y no 0
+  var rawTest = v.replace(/\./g,'').replace(',','.');
+  var nTest = parseFloat(rawTest) || 0;
+
+  // 2) Confirmación
+  if (!confirm('¿Desea guardar el monto ingresado?')) return;
+
+  // 4) Guardar ingreso
+  ingresos = nTest;
+  localStorage.setItem(keyI, ingresos);
+
+  // 5) Reiniciar gastos y otros
+  gastos = [];
+  otrosIngresos = [];
   localStorage.setItem(keyG, JSON.stringify(gastos));
-  // Reset UI
-  inpI.value = formatRL(''); inpO.value = formatRL(''); montoInput.value = formatRL('');
-  // Restablecer toggles
-  inpI.disabled = false; btnI.disabled = false; toggleSetIngresos();
-  toggleFinalizarMes();
-  refreshGastos(); refreshMeses(); refreshSaldo();
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // 6) Actualizar UI
+  inpI.disabled = true;
+  btnI.disabled = true;
+  refreshGastos();
+  refreshMeses();
+  refreshSaldo();
 };
 
- function refreshSaldo() {
-      const totalG   = gastos.reduce((s, g) => s + g.monto, 0),
-            totalO   = otrosIngresos.reduce((s, o) => s + o, 0),
-            restante = ingresos + totalO - totalG,
-            cents    = Math.round(restante * 100).toString();
-      saldoEl.textContent = '$' + formatRL(cents);
-    }
-     refreshSaldo();
-    // Handlers de botones
-    btnI.onclick = function(){
-      if (!confirm('¿Desea guardar el monto ingresado?')) return;
-      ingresos = parseFloat(inpI.value.replace(/\./g,'').replace(',','.')) || 0;
-      localStorage.setItem(keyI, ingresos);
-        // ——— Declaración de refreshSaldo ———
-    
-      gastos = []; otrosIngresos = [];
-      localStorage.setItem(keyG, JSON.stringify(gastos));
-      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-      inpI.disabled = true; btnI.disabled = true;
-      refreshGastos(); refreshMeses(); refreshSaldo();
-      toggleFinalizarMes();
-    };
-    btnO.onclick = function(){
-      if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
-      const o = parseFloat(inpO.value.replace(/\./g,'').replace(',','.'))||0;
-      otrosIngresos.push(o);
-      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-      inpO.value = formatRL('');
-      refreshSaldo();
-    };
-    btnGuardar.onclick = function(){
-      const raw = montoInput.value.replace(/\./g,'').replace(',','.');
-      const num = parseFloat(raw) || 0;
-      gastos.unshift({
-        fecha: fechaInput.value,
-        monto: num,
-        categoria: selCat.value,
-        subcat: subcat.value,
-        obs: obs.value
-      });
-      localStorage.setItem(keyG, JSON.stringify(gastos));
-      montoInput.value = formatRL('');
-      toggleGuardarGasto();
-      refreshGastos(); refreshSaldo();
-    };
-    btnFin.onclick = function(){
-      if (!confirm('¿Estás seguro que deseas finalizar el mes?')) return;
-      historial.unshift({ ingresos, otrosIngresos, gastos, fecha: new Date().toISOString() });
-      localStorage.setItem(keyH, JSON.stringify(historial));
-      ingresos = 0; otrosIngresos = []; gastos = [];
-      localStorage.removeItem(keyI);
-      localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-      localStorage.setItem(keyG, JSON.stringify(gastos));
-      inpI.disabled = false; btnI.disabled = false;
-      inpI.value = formatRL('');
-      refreshGastos(); refreshMeses(); refreshSaldo();
-      toggleFinalizarMes();
-    };
-  }
-</script>
 
+// --- Agregar Otros ingresos sin validar formato, solo vacío ---
+btnO.onclick = function(){
+  var v = inpO.value.trim();
+  // 1) Validar no vacío y no 0
+  var rawTest = v.replace(/\./g,'').replace(',','.');
+  var nTest = parseFloat(rawTest) || 0;
+      
+  // 2) Confirmación
+  if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
+
+  // 4) Guardar otros ingresos
+  otrosIngresos.push(nTest);
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // 5) UI
+  inpO.value = formatRL('');
+  refreshSaldo();
+};
+
+
+
+
+btnGuardar.onclick = function() {
+  // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
+  var raw = montoInput.value
+    .replace(/\./g, '')   // elimina puntos de miles
+    .replace(',', '.');   // convierte coma decimal a punto
+  var montoNum = parseFloat(raw) || 0;
+
+  // 2) Crear el objeto gasto guardando un número (no string)
+  var g = {
+    fecha:     fechaInput.value,
+    monto:     montoNum,    // guardamos el número puro
+    categoria: selCat.value,
+    subcat:    subcatInput.value,
+    obs:       obsInput.value
+  };
+
+  // 3) Almacenar y refrescar UI
+  gastos.unshift(g);
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  refreshGastos();
+  refreshSaldo();
+
+  // 4) Limpiar campos y deshabilitar botón
+  montoInput.value      = formatRL('');  
+  subcatInput.value     = '';
+  obsInput.value        = '';
+  btnGuardar.disabled   = true;
+};
+
+
+      // Categorías
+      btnAddCat.onclick=function(){var n=prompt('Nueva categoría:')||'';n=n.trim();if(n&&categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}};
+      btnDelCat.onclick=function(){var c=selCat.value;if(c&&confirm('Eliminar '+c+'?')){categorias=categorias.filter(function(i){return i!==c;});localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();}};
+
+      // Finalizar Mes
+btnFin.onclick = function() {
+  // 1) Confirmación
+  if (!confirm('¿Estás seguro que deseas finalizar el mes?')) {
+    return; // Cancela la acción si el usuario elige NO
+  }
+
+  // 2) Lógica de guardado en historial de meses
+  historial.unshift({
+    ingresos: ingresos,
+    otrosIngresos: otrosIngresos,
+    gastos: gastos,
+    fecha: new Date().toISOString()
+  });
+  localStorage.setItem(keyH, JSON.stringify(historial));
+
+  // 3) Reinicio de datos
+  gastos = [];
+  ingresos = 0;
+  otrosIngresos = [];
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  localStorage.setItem(keyI, ingresos);
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+  // 4) Actualizar UI
+  inpI.disabled   = false;
+  btnI.disabled   = false;
+  inpI.value      = formatRL('');
+  errI.textContent= '';
+  inpO.value      = formatRL('');
+  refreshGastos();
+  refreshMeses();
+  refreshSaldo();
+};
+
+      // Borrar Mes
+      window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
+    }
+    if(document.readyState==='complete')init();else document.addEventListener('DOMContentLoaded',init);
+    if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
+  })();
+  </script>
 </body>
 </html>
