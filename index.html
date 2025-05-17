@@ -288,19 +288,20 @@ body > header h1 {
       btnI.disabled = true;
     }
 
-  // Formateo dinámico con tope 8 enteros + 2 decimales
+// Formateo dinámico con tope 8 enteros + 2 decimales
 [inpI, inpO, montoInput].forEach(el => {
   el.addEventListener('input', function(e) {
-    const raw = e.target.value;
-    const digits = raw.replace(/\D/g,'');
-    // Si ya hay más de 10 dígitos (8+2), ignoramos el último
+    // 1) Extraer solo dígitos
+    let digits = e.target.value.replace(/\D/g, '');
+    // 2) Limitar a 10 dígitos (8 enteros + 2 decimales)
     if (digits.length > 10) {
-      e.target.value = formatRL(raw.slice(0, -1));
-    } else {
-      e.target.value = formatRL(raw);
+      digits = digits.slice(0, 10);
     }
+    // 3) Formatear y asignar
+    e.target.value = formatRL(digits);
   });
 });
+
 
 // --- Finalizar Mes con bloqueo/restauración de ingresos ---
 btnFin.onclick = function(){
@@ -326,6 +327,7 @@ btnFin.onclick = function(){
       if (!confirm('¿Desea guardar el monto ingresado?')) return;
       ingresos = parseFloat(inpI.value.replace(/\./g,'').replace(',','.')) || 0;
       localStorage.setItem(keyI, ingresos);
+      refreshSaldo();
       gastos = []; otrosIngresos = [];
       localStorage.setItem(keyG, JSON.stringify(gastos));
       localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
