@@ -103,7 +103,7 @@ Para limpiar la PWA en Android:
   (function() {
     // Claves y datos
     var selCat = document.getElementById('categoria');
-    var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses', keyM='moneda';
+    var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses',var keyF = 'monthFinalized', keyM='moneda';
     var gastos, ingresos, otrosIngresos, historial, categorias, moneda;
     // Elementos
     var inpI, btnI, errI, inpO, btnO, errO, saldoEl, btnFin;
@@ -193,19 +193,21 @@ function refreshSaldo() {
       saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
       btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
       subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); 
-    
+      // Leer si el mes está finalizado
+
       const fechaInput   = document.getElementById('fecha');
       const montoInput   = document.getElementById('monto');
       const btnGuardar   = document.getElementById('btnGuardar');
       const subcat       = document.getElementById('subcat');
       const btnAddSubcat = document.getElementById('btnAddSubcat');
       const btnDelSubcat = document.getElementById('btnDelSubcat');
-
-
       
       loadData();
       // Fijar fecha al día de hoy
       fechaInput.value = new Date().toISOString().slice(0,10);
+      // Leer si el mes está finalizado
+      var finalized = localStorage.getItem(keyF) === 'true';
+
       // ① Carga inicial de subcategorías
 const keyS = 'subcategorias';
 let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
@@ -249,7 +251,10 @@ btnDelSubcat.addEventListener('click', () => {
       selCat.addEventListener('change', toggleGuardarGasto);
       toggleGuardarGasto();
 
-
+    if (parseFloat(ingresos) > 0 && !finalized) {
+    inpI.disabled = true;
+    btnI.disabled = true;
+  }
       // ① Función para habilitar/deshabilitar Guardar Gasto
    function toggleGuardarGasto() {
   // 1) El campo no puede estar vacío ni ser "0,00"
