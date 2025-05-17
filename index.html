@@ -321,13 +321,21 @@ btnFin.onclick = function(){
   refreshGastos(); refreshMeses(); refreshSaldo();
 };
 
-
+ function refreshSaldo() {
+      const totalG   = gastos.reduce((s, g) => s + g.monto, 0),
+            totalO   = otrosIngresos.reduce((s, o) => s + o, 0),
+            restante = ingresos + totalO - totalG,
+            cents    = Math.round(restante * 100).toString();
+      saldoEl.textContent = '$' + formatRL(cents);
+    }
+     refreshSaldo();
     // Handlers de botones
     btnI.onclick = function(){
       if (!confirm('¿Desea guardar el monto ingresado?')) return;
       ingresos = parseFloat(inpI.value.replace(/\./g,'').replace(',','.')) || 0;
       localStorage.setItem(keyI, ingresos);
-      refreshSaldo();
+        // ——— Declaración de refreshSaldo ———
+    
       gastos = []; otrosIngresos = [];
       localStorage.setItem(keyG, JSON.stringify(gastos));
       localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
