@@ -76,6 +76,21 @@ body > header h1 {
   font-size: 1.5rem;
   font-weight: normal;
 }
+    /* Distinción estado deshabilitado */
+.btn-outline:disabled {
+  border-color: #ccc;
+  color: #ccc;
+  background: transparent;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-primary:disabled {
+  background: #ccc;
+  color: #fff;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 
   </style>
 </head>
@@ -273,72 +288,38 @@ body > header h1 {
       btnI.disabled = true;
     }
 
-    // Formateo dinámico
-    [inpI, inpO, montoInput].forEach(el =>
-      el.addEventListener('input', e => e.target.value = formatRL(e.target.value))
-    );
+  // Formateo dinámico con tope 8 enteros + 2 decimales
+[inpI, inpO, montoInput].forEach(el => {
+  el.addEventListener('input', function(e) {
+    const raw = e.target.value;
+    const digits = raw.replace(/\D/g,'');
+    // Si ya hay más de 10 dígitos (8+2), ignoramos el último
+    if (digits.length > 10) {
+      e.target.value = formatRL(raw.slice(0, -1));
+    } else {
+      e.target.value = formatRL(raw);
+    }
+  });
+});
 
-    // Toggle: Guardar Ingresos
-    function toggleSetIngresos() {
-      btnI.disabled = !inpI.value || inpI.value === '0,00';
-    }
-    inpI.addEventListener('input', toggleSetIngresos);
-    toggleSetIngresos();
+// --- Finalizar Mes con bloqueo/restauración de ingresos ---
+btnFin.onclick = function(){
+  if (!confirm('¿Estás seguro que deseas finalizar el mes?')) return;
+  historial.unshift({ ingresos, otrosIngresos, gastos, fecha: new Date().toISOString() });
+  localStorage.setItem(keyH, JSON.stringify(historial));
+  // Reset de datos
+  ingresos = 0; otrosIngresos = []; gastos = [];
+  localStorage.removeItem(keyI);
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  // Reset UI
+  inpI.value = formatRL(''); inpO.value = formatRL(''); montoInput.value = formatRL('');
+  // Restablecer toggles
+  inpI.disabled = false; btnI.disabled = false; toggleSetIngresos();
+  toggleFinalizarMes();
+  refreshGastos(); refreshMeses(); refreshSaldo();
+};
 
-    // Toggle: Agregar Otros
-    function toggleAddOtros() {
-      btnO.disabled = !inpO.value || inpO.value === '0,00';
-    }
-    inpO.addEventListener('input', toggleAddOtros);
-    toggleAddOtros();
-
-    // Toggle: Finalizar Mes
-    function toggleFinalizarMes() {
-      btnFin.disabled = !(ingresos > 0);
-    }
-    inpI.addEventListener('input', toggleFinalizarMes);
-    toggleFinalizarMes();
-
-    // Toggle: Guardar Gasto
-    function toggleGuardarGasto() {
-      const v = montoInput.value,
-            raw = v.replace(/\./g,'').replace(',','.'),
-            num = parseFloat(raw) || 0;
-      btnGuardar.disabled = !(num > 0 && selCat.value);
-    }
-    montoInput.addEventListener('input', toggleGuardarGasto);
-    selCat.addEventListener('change', toggleGuardarGasto);
-    toggleGuardarGasto();
-
-    // Funciones de refresco
-    function refreshCategories() {
-      selCat.innerHTML = '<option disabled selected value="">-- Seleccionar categoría --</option>'
-        + categorias.map(c => `<option>${c}</option>`).join('');
-    }
-    function refreshSubcats() {
-      subcat.innerHTML = '<option disabled selected value="">– Opcional –</option>'
-        + subcategorias.map(s => `<option>${s}</option>`).join('');
-    }
-    function refreshGastos() {
-      // implementa tu render de lista aquí…
-    }
-    function refreshMeses() {
-      // implementa tu render de historial…
-    }
-    function refreshSaldo() {
-      const totalG = gastos.reduce((s,g)=>s+g.monto,0),
-            totalO = otrosIngresos.reduce((s,o)=>s+o,0),
-            restante = ingresos + totalO - totalG,
-            cents = Math.round(restante*100).toString();
-      saldoEl.textContent = '$' + formatRL(cents);
-    }
-
-    // Inicialización de vistas
-    refreshCategories();
-    refreshSubcats();
-    refreshGastos();
-    refreshMeses();
-    refreshSaldo();
 
     // Handlers de botones
     btnI.onclick = function(){
