@@ -242,13 +242,19 @@ btnDelSubcat.addEventListener('click', () => {
 
 
       // Inicial UI
-      inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
-      inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
+      // Cargo el ingreso base guardado (0 si no hay) y lo formateo
+      inpI.value = formatRL( (ingresos * 100).toString() );inpO.value=formatRL(''); montoInput.value=formatRL('');
+      btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
       montoInput.addEventListener('input', toggleGuardarGasto);
       selCat.addEventListener('change', toggleGuardarGasto);
       toggleGuardarGasto();
-
+      
+  // Si ya hay un ingreso guardado, mantenemos el input y el botón bloqueados
+    if (ingresos > 0) {
+      inpI.disabled = true;
+      btnI.disabled = true;
+    }
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
    function toggleGuardarGasto() {
