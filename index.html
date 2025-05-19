@@ -257,18 +257,19 @@ btnDelSubcat.addEventListener('click', () => {
     }
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
-   function toggleGuardarGasto() {
-       // 0) Si no hay ingreso base guardado, siempre deshabilita
-  if (ingresos <= 0) {
-    btnGuardar.disabled = true;
-    return;
+ function toggleGuardarGasto() {
+  // sólo true si ingreso base>0, monto válido y categoría seleccionada
+  const v = montoInput.value,
+        raw = v.replace(/\./g,'').replace(',','.'),
+        num = parseFloat(raw) || 0,
+        can = ingresos > 0 && num > 0 && selCat.value;
+  if (can) {
+    btnGuardar.classList.remove('btn-inactive');
+  } else {
+    btnGuardar.classList.add('btn-inactive');
   }
-  // 1) El campo no puede estar vacío ni ser "0,00"
-  const v = montoInput.value;
-  if (!v || v === '0,00') {
-    btnGuardar.disabled = true;
-    return;
-  }
+}
+
 
   // 2) Sanitizar y parsear el valor
   const raw = v.replace(/\./g, '').replace(',', '.');
