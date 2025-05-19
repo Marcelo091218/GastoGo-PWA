@@ -25,9 +25,6 @@ Para limpiar la PWA en Android:
     input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
     .gasto-item, .hist-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
     .saldo { font-size:1.2rem; font-weight:bold; }
-    /* Estilo “desactivado” pero clicable */
-    .btn-inactive { opacity: 0.5; cursor: not-allowed; }
-
   </style>
 </head>
 <body>
@@ -260,19 +257,47 @@ btnDelSubcat.addEventListener('click', () => {
     }
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
- function toggleGuardarGasto() {
-  // sólo true si ingreso base>0, monto válido y categoría seleccionada
-  const v = montoInput.value,
-        raw = v.replace(/\./g,'').replace(',','.'),
-        num = parseFloat(raw) || 0,
-        can = ingresos > 0 && num > 0 && selCat.value;
-  if (can) {
-    btnGuardar.classList.remove('btn-inactive');
-  } else {
-    btnGuardar.classList.add('btn-inactive');
+   function toggleGuardarGasto() {
+       // 0) Si no hay ingreso base guardado, siempre deshabilita
+  if (ingresos <= 0) {
+    btnGuardar.disabled = true;
+    return;
   }
+  // 1) El campo no puede estar vacío ni ser "0,00"
+  const v = montoInput.value;
+  if (!v || v === '0,00') {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 2) Sanitizar y parsear el valor
+  const raw = v.replace(/\./g, '').replace(',', '.');
+  const num = parseFloat(raw) || 0;
+  
+  // 3) Si es cero o NaN, deshabilita
+  if (num <= 0) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 4) También debe haber categoría
+  if (!selCat.value) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 5) Si pasamos todas las validaciones, habilita
+  btnGuardar.disabled = false;
 }
 
+
+
+      // Formateo dinámico derecha→izquierda
+      [inpI, inpO, montoInput].forEach(function(el){
+        el.addEventListener('input', function(e) {
+          e.target.value = formatRL(e.target.value);
+        });
+      });
 // Toggle para habilitar “Guardar Ingresos” sólo si inpI tiene un valor > “0,00”
 function toggleSetIngresos() {
   btnI.disabled = !inpI.value || inpI.value === '0,00';
@@ -289,14 +314,13 @@ function toggleSetIngresos() {
 
 // Toggle para habilitar “Agregar Otros ingresos”
 function toggleAddOtros() {
-  const can = ingresos > 0 && inpO.value && inpO.value !== '0,00';
-  if (can) {
-    btnO.classList.remove('btn-inactive');
-  } else {
-    btnO.classList.add('btn-inactive');
-  }
+  // Solo si ya hay ingreso base > 0 y el campo Otros no está vacío ni es "0,00"
+  btnO.disabled = !(ingresos > 0 && inpO.value && inpO.value !== '0,00');
 }
 
+inpO.addEventListener('input', toggleAddOtros);
+// Estado inicial
+toggleAddOtros();
 
       // Toggle para habilitar “Finalizar Mes” solo con ingreso base >0
 function toggleFinalizarMes() {
