@@ -258,6 +258,11 @@ btnDelSubcat.addEventListener('click', () => {
 
       // ① Función para habilitar/deshabilitar Guardar Gasto
    function toggleGuardarGasto() {
+       // 0) Si no hay ingreso base guardado, siempre deshabilita
+  if (ingresos <= 0) {
+    btnGuardar.disabled = true;
+    return;
+  }
   // 1) El campo no puede estar vacío ni ser "0,00"
   const v = montoInput.value;
   if (!v || v === '0,00') {
@@ -309,8 +314,10 @@ function toggleSetIngresos() {
 
 // Toggle para habilitar “Agregar Otros ingresos”
 function toggleAddOtros() {
-  btnO.disabled = !inpO.value || inpO.value === '0,00';
+  // Solo si ya hay ingreso base > 0 y el campo Otros no está vacío ni es "0,00"
+  btnO.disabled = !(ingresos > 0 && inpO.value && inpO.value !== '0,00');
 }
+
 inpO.addEventListener('input', toggleAddOtros);
 // Estado inicial
 toggleAddOtros();
@@ -361,6 +368,10 @@ toggleSetIngresos();
 
 // --- Agregar Otros ingresos sin validar formato, solo vacío ---
 btnO.onclick = function(){
+  if (ingresos <= 0) {
+  alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
+  return;
+}
   var v = inpO.value.trim();
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
@@ -382,6 +393,10 @@ btnO.onclick = function(){
 
 
 btnGuardar.onclick = function() {
+  if (ingresos <= 0) {
+  alert('Debes definir primero tus ingresos mensuales para registrar un gasto.');
+  return;
+}
   // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
   var raw = montoInput.value
     .replace(/\./g, '')   // elimina puntos de miles
