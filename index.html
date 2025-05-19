@@ -74,7 +74,14 @@ Para limpiar la PWA en Android:
         <button type="button" id="btnAddCat">+</button>
         <button type="button" id="btnDelCat">–</button>
       </div>
-      <input type="text" id="subcat" placeholder="Subcategoría" />
+      <div class="flex" style="align-items:center">
+  <select id="subcat">
+    <option disabled selected value="">– Opcional: Subcategoría –</option>
+  </select>
+  <button type="button" id="btnAddSubcat" title="Agregar subcategoría" style="margin-left:8px">+</button>
+  <button type="button" id="btnDelSubcat" title="Eliminar subcategoría" style="margin-left:4px">–</button>
+</div>
+
       <textarea id="obs" placeholder="Observaciones"></textarea>
       <button type="button" id="btnGuardar">Guardar Gasto</button>
     </section>
@@ -190,16 +197,89 @@ function refreshSaldo() {
       const fechaInput   = document.getElementById('fecha');
       const montoInput   = document.getElementById('monto');
       const btnGuardar   = document.getElementById('btnGuardar');
+      const subcat       = document.getElementById('subcat');
+      const btnAddSubcat = document.getElementById('btnAddSubcat');
+      const btnDelSubcat = document.getElementById('btnDelSubcat');
+
 
       
       loadData();
       // Fijar fecha al día de hoy
       fechaInput.value = new Date().toISOString().slice(0,10);
+      // ① Carga inicial de subcategorías
+const keyS = 'subcategorias';
+let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
+
+// ② Función para refrescar el combo de subcats
+function refreshSubcats() {
+  subcat.innerHTML = 
+    '<option disabled selected value="">– Opcional: Subcategoría –</option>' +
+    subcategorias.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+refreshSubcats();
+
+// ③ Añadir nueva subcategoría
+btnAddSubcat.addEventListener('click', () => {
+  const nueva = prompt('Nombre de la nueva subcategoría:');
+  if (nueva && !subcategorias.includes(nueva.trim())) {
+    subcategorias.push(nueva.trim());
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+    subcat.value = nueva.trim();
+  }
+});
+
+// ④ Eliminar subcategoría seleccionada
+btnDelSubcat.addEventListener('click', () => {
+  const sel = subcat.value;
+  if (!sel) return alert('Selecciona primero una subcategoría para eliminar.');
+  if (confirm(`¿Eliminar subcategoría "${sel}"?`)) {
+    subcategorias = subcategorias.filter(s => s !== sel);
+    localStorage.setItem(keyS, JSON.stringify(subcategorias));
+    refreshSubcats();
+  }
+});
+
 
       // Inicial UI
       inpI.value=formatRL(''); inpO.value=formatRL(''); montoInput.value=formatRL('');
       inpI.disabled=false; btnI.disabled=false; errI.textContent=''; errO.textContent='';
       refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
+      montoInput.addEventListener('input', toggleGuardarGasto);
+      selCat.addEventListener('change', toggleGuardarGasto);
+      toggleGuardarGasto();
+
+
+      // ① Función para habilitar/deshabilitar Guardar Gasto
+   function toggleGuardarGasto() {
+  // 1) El campo no puede estar vacío ni ser "0,00"
+  const v = montoInput.value;
+  if (!v || v === '0,00') {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 2) Sanitizar y parsear el valor
+  const raw = v.replace(/\./g, '').replace(',', '.');
+  const num = parseFloat(raw) || 0;
+  
+  // 3) Si es cero o NaN, deshabilita
+  if (num <= 0) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 4) También debe haber categoría
+  if (!selCat.value) {
+    btnGuardar.disabled = true;
+    return;
+  }
+
+  // 5) Si pasamos todas las validaciones, habilita
+  btnGuardar.disabled = false;
+}
+
+
 
       // Formateo dinámico derecha→izquierda
       [inpI, inpO, montoInput].forEach(function(el){
@@ -207,22 +287,40 @@ function refreshSaldo() {
           e.target.value = formatRL(e.target.value);
         });
       });
+// Toggle para habilitar “Guardar Ingresos” sólo si inpI tiene un valor > “0,00”
+function toggleSetIngresos() {
+  btnI.disabled = !inpI.value || inpI.value === '0,00';
+}
+inpI.addEventListener('input', toggleSetIngresos);
+// Estado inicial
+toggleSetIngresos();
 
+// Toggle para habilitar “Agregar Otros ingresos”
+function toggleAddOtros() {
+  btnO.disabled = !inpO.value || inpO.value === '0,00';
+}
+inpO.addEventListener('input', toggleAddOtros);
+// Estado inicial
+toggleAddOtros();
+
+      // Toggle para habilitar “Finalizar Mes” solo con ingreso base >0
+function toggleFinalizarMes() {
+  btnFin.disabled = !(parseFloat(ingresos) > 0);
+}
+inpI.addEventListener('input', toggleFinalizarMes);
+// Estado inicial (tras loadData y posible captura de ingresos previos)
+toggleFinalizarMes();
+
+
+      
 // --- Guardar Ingresos sin validar formato, solo vacío ---
 btnI.onclick = function(){
   var v = inpI.value.trim();
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-  if (!v || nTest <= 0) {
-    errI.textContent = 'Debes cargar un valor';
-    inpI.classList.add('invalid');
-    return;
-  }
-  // 2) Limpiar error
-  errI.textContent = '';
-  inpI.classList.remove('invalid');
-  // 3) Confirmación
+
+  // 2) Confirmación
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
   // 4) Guardar ingreso
@@ -250,15 +348,8 @@ btnO.onclick = function(){
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-  if (!v || nTest <= 0) {
-    errO.textContent = 'Debes cargar un valor';
-    inpO.classList.add('invalid');
-    return;
-  }
-  // 2) Limpiar error
-  errO.textContent = '';
-  inpO.classList.remove('invalid');
-  // 3) Confirmación
+      
+  // 2) Confirmación
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
   // 4) Guardar otros ingresos
