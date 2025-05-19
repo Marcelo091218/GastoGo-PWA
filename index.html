@@ -314,9 +314,14 @@ function toggleSetIngresos() {
 
 // Toggle para habilitar “Agregar Otros ingresos”
 function toggleAddOtros() {
-  // Solo si ya hay ingreso base > 0 y el campo Otros no está vacío ni es "0,00"
-  btnO.disabled = !(ingresos > 0 && inpO.value && inpO.value !== '0,00');
+  const can = ingresos > 0 && inpO.value && inpO.value !== '0,00';
+  if (can) {
+    btnO.classList.remove('btn-inactive');
+  } else {
+    btnO.classList.add('btn-inactive');
+  }
 }
+
 
 inpO.addEventListener('input', toggleAddOtros);
 // Estado inicial
