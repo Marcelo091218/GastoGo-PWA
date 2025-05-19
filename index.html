@@ -289,10 +289,11 @@ function toggleSetIngresos() {
   const hasIngresoGuardado = ingresos > 0;
   btnI.disabled = hasIngresoGuardado || !v || v === '0,00';
 }
-
+refreshGastos();
 
 // Toggle para habilitar “Agregar Otros ingresos”
 function toggleAddOtros() {
+
   const can = ingresos > 0 && inpO.value && inpO.value !== '0,00';
   if (can) {
     btnO.classList.remove('btn-inactive');
@@ -352,15 +353,16 @@ toggleSetIngresos();
 
 // --- Agregar Otros ingresos sin validar formato, solo vacío ---
 btnO.onclick = function(){
-  if (ingresos <= 0) {
-  alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
-  return;
-}
+
   var v = inpO.value.trim();
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-      
+  
+        if (ingresos <= 0) {
+  alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
+  return;
+}
   // 2) Confirmación
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
