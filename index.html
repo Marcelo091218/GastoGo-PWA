@@ -323,7 +323,10 @@ btnI.onclick = function(){
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-
+  // 1) Validar que sea mayor que 0
+  if (nTest <= 0) {
+    alert('El monto de ingresos debe ser mayor que 0.');
+    return;
   // 2) Confirmación
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
