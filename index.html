@@ -271,28 +271,6 @@ btnDelSubcat.addEventListener('click', () => {
 }
 
 
-  // 2) Sanitizar y parsear el valor
-  const raw = v.replace(/\./g, '').replace(',', '.');
-  const num = parseFloat(raw) || 0;
-  
-  // 3) Si es cero o NaN, deshabilita
-  if (num <= 0) {
-    btnGuardar.disabled = true;
-    return;
-  }
-
-  // 4) También debe haber categoría
-  if (!selCat.value) {
-    btnGuardar.disabled = true;
-    return;
-  }
-
-  // 5) Si pasamos todas las validaciones, habilita
-  btnGuardar.disabled = false;
-}
-
-
-
       // Formateo dinámico derecha→izquierda
       [inpI, inpO, montoInput].forEach(function(el){
         el.addEventListener('input', function(e) {
