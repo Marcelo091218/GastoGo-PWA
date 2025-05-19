@@ -299,7 +299,13 @@ function toggleSetIngresos() {
 }
 inpI.addEventListener('input', toggleSetIngresos);
 // Estado inicial
-toggleSetIngresos();
+function toggleSetIngresos() {
+  // Sólo habilitamos el botón si NO hay ingresos guardados y el campo tiene valor válido
+  const v = inpI.value;
+  const hasIngresoGuardado = ingresos > 0;
+  btnI.disabled = hasIngresoGuardado || !v || v === '0,00';
+}
+
 
 // Toggle para habilitar “Agregar Otros ingresos”
 function toggleAddOtros() {
@@ -333,11 +339,16 @@ btnI.onclick = function(){
   ingresos = nTest;
   localStorage.setItem(keyI, ingresos);
 
+  // Tras resetear ingresos, habilitamos el botón para el siguiente mes
+toggleSetIngresos();
+
+
   // 5) Reiniciar gastos y otros
   gastos = [];
   otrosIngresos = [];
   localStorage.setItem(keyG, JSON.stringify(gastos));
   localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
 
   // 6) Actualizar UI
   inpI.disabled = true;
