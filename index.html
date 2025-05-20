@@ -435,6 +435,12 @@ btnGuardar.onclick = function() {
     .replace(',', '.');   // convierte coma decimal a punto
   var montoNum = parseFloat(raw) || 0;
 
+    // 1a) Validar montoNum > 0
+  if (montoNum <= 0) {
+    alert('El monto del gasto debe ser mayor que 0.');
+    return;
+  }
+
   // 2) Crear el objeto gasto guardando un número (no string)
   var g = {
     fecha:     fechaInput.value,
