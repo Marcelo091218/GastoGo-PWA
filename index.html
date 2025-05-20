@@ -354,6 +354,38 @@ toggleSetIngresos();
   refreshMeses();
   refreshSaldo();
 };
+// --- Guardar Ingresos sin validar formato, solo vacío ---
+btnI.onclick = function(){
+  var v = inpI.value.trim();
+  // 1) Validar no vacío y no 0
+  var rawTest = v.replace(/\./g,'').replace(',','.');
+  var nTest = parseFloat(rawTest) || 0;
+
+  // 2) Confirmación
+  if (!confirm('¿Desea guardar el monto ingresado?')) return;
+
+  // 4) Guardar ingreso
+  ingresos = nTest;
+  localStorage.setItem(keyI, ingresos);
+
+  // Tras resetear ingresos, habilitamos el botón para el siguiente mes
+toggleSetIngresos();
+
+
+  // 5) Reiniciar gastos y otros
+  gastos = [];
+  otrosIngresos = [];
+  localStorage.setItem(keyG, JSON.stringify(gastos));
+  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+
+
+  // 6) Actualizar UI
+  inpI.disabled = true;
+  btnI.disabled = true;
+  refreshGastos();
+  refreshMeses();
+  refreshSaldo();
+};
 
 
 // --- Agregar Otros ingresos sin validar formato, solo vacío ---
