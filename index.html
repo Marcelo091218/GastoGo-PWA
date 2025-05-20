@@ -361,6 +361,11 @@ btnI.onclick = function(){
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
 
+  if (nTest <= 0) {
+    alert('El monto de ingresos debe ser mayor que 0.');
+    return;
+  }
+
   // 2) Confirmación
   if (!confirm('¿Desea guardar el monto ingresado?')) return;
 
