@@ -368,6 +368,19 @@ btnO.onclick = function(){
   alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
   return;
 }
+
+    // 1a) Validar que el ingreso base exista
+  if (ingresos <= 0) {
+    alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
+    return;
+  }
+  // 1b) Validar que nTest > 0
+  if (nTest <= 0) {
+    alert('El monto de otros ingresos debe ser mayor que 0.');
+    return;
+  }
+
+  
   // 2) Confirmación
   if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
 
