@@ -363,11 +363,7 @@ btnO.onclick = function(){
   // 1) Validar no vacío y no 0
   var rawTest = v.replace(/\./g,'').replace(',','.');
   var nTest = parseFloat(rawTest) || 0;
-  
-        if (ingresos <= 0) {
-  alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
-  return;
-}
+
 
     // 1a) Validar que el ingreso base exista
   if (ingresos <= 0) {
