@@ -442,12 +442,6 @@ btnGuardar.onclick = function() {
   return;
 }
 
-    // 0a) Validar que se haya seleccionado una categoría
-  if (!selCat.value) {
-    alert('Debes seleccionar una categoría antes de guardar el gasto.');
-    return;
-  }
-  
   // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
   var raw = montoInput.value
     .replace(/\./g, '')   // elimina puntos de miles
@@ -460,6 +454,12 @@ btnGuardar.onclick = function() {
     return;
   }
 
+      // 1b) Validar que se haya seleccionado una categoría
+  if (!selCat.value) {
+    alert('Debes seleccionar una categoría antes de guardar el gasto.');
+    return;
+  }
+  
   // 2) Crear el objeto gasto guardando un número (no string)
   var g = {
     fecha:     fechaInput.value,
