@@ -460,7 +460,8 @@ btnGuardar.onclick = function() {
   localStorage.setItem(keyG, JSON.stringify(gastos));
   refreshGastos();
   refreshSaldo();
-
+  refreshCategories();
+  
   // 4) Limpiar campos y deshabilitar botón
   montoInput.value      = formatRL('');  
   subcatInput.value     = '';
