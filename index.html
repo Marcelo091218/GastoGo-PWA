@@ -319,6 +319,13 @@ toggleFinalizarMes();
       
 // --- Guardar Ingresos sin validar formato, solo vacío ---
  btnGuardar.onclick = function() {
+
+     // 0a) Validar que se haya seleccionado una categoría
+  if (!selCat.value) {
+    alert('Debes seleccionar una categoría antes de guardar el gasto.');
+    return;
+  }
+   
    var raw = montoInput.value
      .replace(/\./g,'')
      .replace(',', '.');
