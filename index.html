@@ -441,6 +441,13 @@ btnGuardar.onclick = function() {
   alert('Debes definir primero tus ingresos mensuales para registrar un gasto.');
   return;
 }
+
+    // 0a) Validar que se haya seleccionado una categoría
+  if (!selCat.value) {
+    alert('Debes seleccionar una categoría antes de guardar el gasto.');
+    return;
+  }
+  
   // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
   var raw = montoInput.value
     .replace(/\./g, '')   // elimina puntos de miles
@@ -483,12 +490,6 @@ btnGuardar.onclick = function() {
 
       // Finalizar Mes
 btnFin.onclick = function() {
-
-    // 0) Validar que existan ingresos base
-  if (ingresos <= 0) {
-    alert('No puedes finalizar el mes sin antes definir un ingreso mensual mayor que 0.');
-    return;
-  }
   
   // 1) Confirmación
   if (!confirm('¿Estás seguro que deseas finalizar el mes?')) {
