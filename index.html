@@ -470,6 +470,13 @@ btnGuardar.onclick = function() {
 
       // Finalizar Mes
 btnFin.onclick = function() {
+
+    // 0) Validar que existan ingresos base
+  if (ingresos <= 0) {
+    alert('No puedes finalizar el mes sin antes definir un ingreso mensual mayor que 0.');
+    return;
+  }
+  
   // 1) Confirmación
   if (!confirm('¿Estás seguro que deseas finalizar el mes?')) {
     return; // Cancela la acción si el usuario elige NO
