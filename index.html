@@ -15,78 +15,77 @@ Para limpiar la PWA en Android:
 
 </head>
 <body>
-  <!-- 1. Cabecera fija -->
-  <header>
-    <h1>GastoGo</h1>
-  </header>
-
-  <!-- 2. Navegación tipo pestañas -->
-  <nav>
-    <ul class="tabs">
-      <li data-tab="dashboard" class="active">Inicio</li>
-      <li data-tab="gastos">Gastos</li>
-      <li data-tab="informes">Informes</li>
-      <li data-tab="config">Configuración</li>
-    </ul>
-  </nav>
-
-  <!-- 3. Contenedor de contenido -->
+  <header><h1>GastoGo...</h1></header>
   <main>
-    <!-- Pantalla Inicio -->
-    <section id="dashboard" class="tab-content active">
-      <h2>Bienvenido a GastoGo</h2>
-      <p>Aquí verás tu resumen mensual.</p>
-    </section>
-
-    <!-- Pantalla Gastos -->
-    <section id="gastos" class="tab-content">
-      <div id="nuevo-gasto">
-        <label for="descripcion">Descripción:</label>
-        <input
-          type="text"
-          id="descripcion"
-          placeholder="Descripción del gasto"
-        />
-
-        <label for="monto">Monto:</label>
-        <input
-          type="number"
-          id="monto"
-          placeholder="0.00"
-        />
-
-        <button
-          id="btnGuardar"
-          class="btn-primary"
-        >
-          Guardar gasto
-        </button>
+    <!-- Ingresos -->
+    <section id="secIngresos">
+      <h2>Definir Ingresos</h2>
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="inputIngresos" maxlength="13" placeholder="0,00"/>
       </div>
-      <!-- Aquí puedes añadir debajo la lista de gastos, p. ej. un <ul> o <table> -->
+  
+      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
+       Ingresa tu salario o ingresos mensuales
+      </small>
+
+      <div id="errorIngresos" class="error-msg"></div>
+      <button type="button" id="btnSetIngresos">Guardar</button>
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="inputOtrosIngresos" maxlength="13" placeholder="0,00" />
+      </div>
+
+      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
+       Ingresa tus ingresos extras
+      </small>
+      
+      <div id="errorOtros" class="error-msg"></div>
+      <button type="button" id="btnAddOtrosIngresos">Agregar Otros</button>
+      <div class="saldo">Saldo restante: <span id="saldoRestante">$0,00</span></div>
+      <button type="button" id="btnFinalizarMes">Finalizar Mes</button>
     </section>
 
-    <!-- Pantalla Informes -->
-    <section id="informes" class="tab-content">
-      <h2>Informes</h2>
-      <p>Próximamente gráficos y estadísticas.</p>
+    <!-- Registrar Gasto -->
+    <section id="secGastos">
+      <h2>Registrar gasto</h2>
+      <input type="date" id="fecha" />
+      <div class="input-group">
+        <span>$</span>
+        <input type="text" id="monto" maxlength="13" placeholder="0,00" />
+      </div>
+      <div class="flex">
+        <select id="categoria">
+          <option disabled selected value="">-- Seleccionar categoría --</option>
+        </select>
+        <button type="button" id="btnAddCat">+</button>
+        <button type="button" id="btnDelCat">–</button>
+      </div>
+      <div class="flex" style="align-items:center">
+  <select id="subcat">
+    <option disabled selected value="">– Opcional: Subcategoría –</option>
+  </select>
+  <button type="button" id="btnAddSubcat" title="Agregar subcategoría" style="margin-left:8px">+</button>
+  <button type="button" id="btnDelSubcat" title="Eliminar subcategoría" style="margin-left:4px">–</button>
+</div>
+
+      <textarea id="obs" placeholder="Observaciones"></textarea>
+      <button type="button" id="btnGuardar">Guardar Gasto</button>
     </section>
 
-    <!-- Pantalla Configuración -->
-    <section id="config" class="tab-content">
-      <h2>Configuración</h2>
-      <p>Ajustes de la aplicación.</p>
+    <!-- Historial de Gastos -->
+    <section id="secHistorial">
+      <h2>Historial de Gastos</h2>
+      <div id="listaGastos"></div>
+    </section>
+
+    <!-- Historial de Meses -->
+    <section id="secHistorialMeses">
+      <h2>Historial de Meses Finalizados</h2>
+      <div id="listaMeses"></div>
     </section>
   </main>
 
-  <!-- 4. Pie de página -->
-  <footer>
-    <small>© 2025 GastoGo</small>
-  </footer>
-
-  <!-- 5. Tus scripts: primero el de navegación de pestañas -->
-  <script src="assets/js/app.js"></script>
-
-  <!-- 6. Tu init() original (o adapta aquí tu script de guardado) -->
   <script>
   (function() {
     // Claves y datos
@@ -519,7 +518,5 @@ btnFin.onclick = function() {
     if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
   })();
   </script>
-
 </body>
-
 </html>
