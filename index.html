@@ -10,9 +10,22 @@ Para limpiar la PWA en Android:
   <title>GastoGo...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/css/style.css">
-
-
+  <style>
+    body { font-family: sans-serif; margin:0; padding:0; }
+    header { background:#4CAF50; color:#fff; padding:1rem; text-align:center; }
+    main { padding:1rem; }
+    section { margin-top:1.5rem; border:1px solid #ddd; padding:1rem; border-radius:8px; }
+    h2 { margin-top:0; }
+    .flex { display:flex; align-items:center; }
+    .flex > * { margin-right:8px; }
+    .input-group { display:flex; align-items:center; }
+    .input-group span { margin-right:8px; color:#666; pointer-events:none; }
+    .error-msg { font-size:0.8rem; color:red; margin-top:-0.5rem; margin-bottom:0.5rem; }
+    input.invalid { border-color:red; }
+    input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
+    .gasto-item, .hist-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
+    .saldo { font-size:1.2rem; font-weight:bold; }
+  </style>
 </head>
 <body>
   <header><h1>GastoGo...</h1></header>
@@ -467,7 +480,7 @@ btnGuardar.onclick = function() {
   montoInput.value      = formatRL('');  
   subcatInput.value     = '';
   obsInput.value        = '';
-  //btnGuardar.disabled   = true;
+  btnGuardar.disabled   = true;
 };
 
 
