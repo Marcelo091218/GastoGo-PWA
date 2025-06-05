@@ -1,521 +1,419 @@
-<!--
-Para limpiar la PWA en Android:
-1. Ajustes Android → Apps → Chrome → Storage → Site Storage → GastoGo → Borrar datos.
-2. O en Chrome: chrome://settings/siteData, busca tu dominio, elimina datos.
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>GastoGo...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GastoGo</title>
+
+  <!-- ==========================
+       Estilos mínimos (puedes moverlos a tu CSS externo)
+       ========================== -->
   <style>
-    body { font-family: sans-serif; margin:0; padding:0; }
-    header { background:#4CAF50; color:#fff; padding:1rem; text-align:center; }
-    main { padding:1rem; }
-    section { margin-top:1.5rem; border:1px solid #ddd; padding:1rem; border-radius:8px; }
-    h2 { margin-top:0; }
-    .flex { display:flex; align-items:center; }
-    .flex > * { margin-right:8px; }
-    .input-group { display:flex; align-items:center; }
-    .input-group span { margin-right:8px; color:#666; pointer-events:none; }
-    .error-msg { font-size:0.8rem; color:red; margin-top:-0.5rem; margin-bottom:0.5rem; }
-    input.invalid { border-color:red; }
-    input, select, textarea, button { display:block; width:100%; margin:0.5rem 0; padding:0.5rem; box-sizing:border-box; }
-    .gasto-item, .hist-item { border-bottom:1px solid #ddd; padding:0.5rem 0; }
-    .saldo { font-size:1.2rem; font-weight:bold; }
+    /* ——— Reset y tipografía básica ——— */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 1rem;
+      line-height: 1.5;
+    }
+    h1, h2 {
+      margin-bottom: 0.5rem;
+    }
+    section {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #3b82f6;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+    .btn:hover:not(:disabled) {
+      background-color: #2563eb;
+    }
+    .flex-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .flex-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #f3f4f6;
+    }
+    .small-text {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
+
 <body>
-  <header><h1>GastoGo...</h1></header>
-  <main>
-    <!-- Ingresos -->
-    <section id="secIngresos">
-      <h2>Definir Ingresos</h2>
-      <div class="input-group">
-        <span>$</span>
-        <input type="text" id="inputIngresos" maxlength="13" placeholder="0,00"/>
-      </div>
-  
-      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
-       Ingresa tu salario o ingresos mensuales
-      </small>
+  <h1>GastoGo</h1>
 
-      <div id="errorIngresos" class="error-msg"></div>
-      <button type="button" id="btnSetIngresos">Guardar</button>
-      <div class="input-group">
-        <span>$</span>
-        <input type="text" id="inputOtrosIngresos" maxlength="13" placeholder="0,00" />
-      </div>
+  <!-- ==========================
+       1. Definir Ingresos (Saldo Mensual)
+       ========================== -->
+  <section id="seccion-ingresos">
+    <h2>Definir Ingresos</h2>
 
-      <small style="display:block; font-size:0.85rem; color:#666; margin-top:-0.5rem; margin-bottom:0.5rem;">
-       Ingresa tus ingresos extras
-      </small>
-      
-      <div id="errorOtros" class="error-msg"></div>
-      <button type="button" id="btnAddOtrosIngresos">Agregar Otros</button>
-      <div class="saldo">Saldo restante: <span id="saldoRestante">$0,00</span></div>
-      <button type="button" id="btnFinalizarMes">Finalizar Mes</button>
-    </section>
+    <label for="ingresos">Saldo Mensual:</label>
+    <input
+      type="number"
+      id="ingresos"
+      placeholder="Ingresa tu salario o ingresos mensuales"
+      min="0"
+      value="0"
+    />
 
-    <!-- Registrar Gasto -->
-    <section id="secGastos">
-      <h2>Registrar gasto</h2>
-      <input type="date" id="fecha" />
-      <div class="input-group">
-        <span>$</span>
-        <input type="text" id="monto" maxlength="13" placeholder="0,00" />
-      </div>
-      <div class="flex">
-        <select id="categoria">
-          <option disabled selected value="">-- Seleccionar categoría --</option>
-        </select>
-        <button type="button" id="btnAddCat">+</button>
-        <button type="button" id="btnDelCat">–</button>
-      </div>
-      <div class="flex" style="align-items:center">
-  <select id="subcat">
-    <option disabled selected value="">– Opcional: Subcategoría –</option>
-  </select>
-  <button type="button" id="btnAddSubcat" title="Agregar subcategoría" style="margin-left:8px">+</button>
-  <button type="button" id="btnDelSubcat" title="Eliminar subcategoría" style="margin-left:4px">–</button>
-</div>
+    <div class="flex-row">
+      <button type="button" id="btnGuardarIngreso" class="btn">
+        Guardar Ingreso
+      </button>
 
-      <textarea id="obs" placeholder="Observaciones"></textarea>
-      <button type="button" id="btnGuardar">Guardar Gasto</button>
-    </section>
+      <button type="button" id="btnFin" class="btn" disabled>
+        Finalizar Mes
+      </button>
+    </div>
 
-    <!-- Historial de Gastos -->
-    <section id="secHistorial">
-      <h2>Historial de Gastos</h2>
-      <div id="listaGastos"></div>
-    </section>
+    <p class="small-text">
+      <span>Saldo restante: </span>
+      <span id="saldo-restante-display">$0,00</span>
+    </p>
+  </section>
 
-    <!-- Historial de Meses -->
-    <section id="secHistorialMeses">
-      <h2>Historial de Meses Finalizados</h2>
-      <div id="listaMeses"></div>
-    </section>
-  </main>
+  <!-- ==========================
+       2. Registrar Gasto
+       ========================== -->
+  <section id="seccion-gastos">
+    <h2>Registrar Gasto</h2>
 
+    <div class="flex-column">
+      <label for="select-categoria">Categoría:</label>
+      <select id="select-categoria">
+        <option value="">-- Seleccionar categoría --</option>
+        <option value="Alimentos">Alimentos</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Salud">Salud</option>
+        <option value="Entretenimiento">Entretenimiento</option>
+        <!-- Agrega las categorías que necesites -->
+      </select>
+
+      <label for="select-subcategoria">Subcategoría (opcional):</label>
+      <select id="select-subcategoria" disabled>
+        <option value="">-- Primero elige categoría --</option>
+        <!-- Las opciones se cargarán dinámicamente según la categoría -->
+      </select>
+
+      <label for="monto-gasto">Monto del Gasto:</label>
+      <input
+        type="number"
+        id="monto-gasto"
+        placeholder="0.00"
+        min="0"
+        value="0"
+      />
+
+      <button type="button" id="btnGuardarGasto" class="btn">
+        Guardar Gasto
+      </button>
+    </div>
+  </section>
+
+  <!-- ==========================
+       3. Historial de Gastos
+       ========================== -->
+  <section id="seccion-historial">
+    <h2>Historial de Gastos</h2>
+    <table id="tabla-gastos">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Categoría</th>
+          <th>Subcategoría</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aquí se irán agregando las filas de cada gasto -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================
+       4. Historial de Meses Finalizados
+       ========================== -->
+  <section id="seccion-meses">
+    <h2>Historial de Meses Finalizados</h2>
+    <table id="tabla-meses">
+      <thead>
+        <tr>
+          <th>Mes/Año</th>
+          <th>Total Ingresos</th>
+          <th>Total Gastos</th>
+          <th>Saldo Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aquí se listarán los meses que hayas finalizado -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================
+       5. JavaScript necesario
+       ========================== -->
   <script>
-  (function() {
-    // Claves y datos
-    var selCat = document.getElementById('categoria');
-    var keyG='gastos', keyC='categorias', keyI='ingresos', keyO='otrosIngresos', keyH='historialMeses', keyM='moneda';
-    var gastos, ingresos, otrosIngresos, historial, categorias, moneda;
-    // Elementos
-    var inpI, btnI, errI, inpO, btnO, errO, saldoEl, btnFin;
-    var fechaInput, montoInput, selCat, btnAddCat, btnDelCat, subcatInput, obsInput, btnGuardar;
+    document.addEventListener('DOMContentLoaded', function () {
+      // Referencias a elementos de "Ingresos"
+      const ingresosInput = document.getElementById('ingresos');
+      const btnGuardarIngreso = document.getElementById('btnGuardarIngreso');
+      const btnFin = document.getElementById('btnFin');
+      const saldoRestanteDisplay = document.getElementById('saldo-restante-display');
 
-    function loadData() {
-      gastos = JSON.parse(localStorage.getItem(keyG)||'[]');
-      ingresos = parseFloat(localStorage.getItem(keyI))||0;
-      otrosIngresos = JSON.parse(localStorage.getItem(keyO)||'[]');
-      historial = JSON.parse(localStorage.getItem(keyH)||'[]');
-      moneda = localStorage.getItem(keyM)||'$';
-      categorias = JSON.parse(localStorage.getItem(keyC)||'null');
-      if(!Array.isArray(categorias)||categorias.length===0){
-        categorias=['Vivienda','Impuestos y servicios','Vehículo','Otros gastos'];
-        localStorage.setItem(keyC,JSON.stringify(categorias));
+      // Referencias a elementos de "Gastos"
+      const selectCategoria = document.getElementById('select-categoria');
+      const selectSubcategoria = document.getElementById('select-subcategoria');
+      const montoGastoInput = document.getElementById('monto-gasto');
+      const btnGuardarGasto = document.getElementById('btnGuardarGasto');
+      const tablaGastosBody = document.querySelector('#tabla-gastos tbody');
+      const tablaMesesBody = document.querySelector('#tabla-meses tbody');
+
+      // Variables internas
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let listaGastos = [];
+      const categoriasConSub = {
+        Alimentos: ['Supermercado', 'Restaurante', 'Cafetería'],
+        Transporte: ['Colectivo', 'Taxi', 'Combustible'],
+        Salud: ['Medicamentos', 'Consulta Médica', 'Gimnasio'],
+        Entretenimiento: ['Cine', 'Conciertos', 'Streaming'],
+        // Agrega más categorías si quieres
+      };
+
+      // ─── Función para formatear moneda en $0.00 ───
+      function formatearMoneda(valor) {
+        return '$' + valor.toLocaleString('es-AR', { minimumFractionDigits: 2 });
       }
-    }
 
-function formatRL(str) {
-  var digits = str.replace(/\D/g,'');
-  digits = digits.slice(-10);
-  while (digits.length < 3) digits = '0' + digits;
-  // separa parte entera y decimales
-  var intPart = digits.slice(0, -2);
-  var decPart = digits.slice(-2);
-  // elimina ceros iniciales, pero deja al menos un cero
-  intPart = intPart.replace(/^0+(?=\d)/, '');
-  // añade separadores de miles
-  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return intPart + ',' + decPart;
-}
-
-
-    function fmt(v){return parseFloat(v).toFixed(2);}    
-    function validNum(str){return /^\d+(\,\d{1,2})?$/.test(str);}    
-
-    function refreshCategories(){
-      selCat.innerHTML='<option disabled selected value="">-- Seleccionar categoría --</option>'+
-        categorias.map(function(c){return '<option>'+c+'</option>';}).join('');
-    }
-    function refreshGastos(){
-      var html=gastos.map(function(g){return '<div class="gasto-item">'+g.fecha+' – '+g.categoria+'/'+g.subcat+': '+moneda+g.monto+'</div>';}).join('')||'<em>No hay gastos</em>';
-      document.getElementById('listaGastos').innerHTML=html;
-    }
-    function refreshMeses(){
-      var html=historial.map(function(m,i){
-        var tg=m.gastos.reduce(function(s,g){return s+parseFloat(g.monto);},0);
-        var to=m.otrosIngresos.reduce(function(s,o){return s+parseFloat(o);},0);
-        var sal=(m.ingresos+to-tg).toFixed(2);
-        return '<div class="hist-item"><strong>'+new Date(m.fecha).toLocaleDateString()+'</strong><br>'+
-          'Ingresos: '+moneda+parseFloat(m.ingresos).toFixed(2)+' + Otros: '+moneda+to.toFixed(2)+'<br>'+
-          'Gastos: '+moneda+tg.toFixed(2)+' | Saldo: '+moneda+sal+
-          ' <button onclick="borrarMes('+i+')">Eliminar</button></div>';
-      }).join('')||'<em>No hay meses finalizados</em>';
-      document.getElementById('listaMeses').innerHTML=html;
-    }
-    
-function refreshSaldo() {
-  // 1) Sumar gastos y otrosIngresos tal como estaban
-  var totalGastos = gastos.reduce(function(s, g){
-    return s + (parseFloat(g.monto) || 0);
-  }, 0);
-  var totalOtros = otrosIngresos.reduce(function(s, o){
-    return s + (parseFloat(o) || 0);
-  }, 0);
-  var ingresoBase = parseFloat(ingresos) || 0;
-
-  // 2) Cálculo puro de unidades
-  var restante = ingresoBase + totalOtros - totalGastos;
-
-  // 3) Convertir a centavos (entero)
-  var cents = Math.round(restante * 100).toString();
-
-  // 4) Formatear con formatRL (que interpreta la string de centavos)
-  var formatted = formatRL(cents);
-
-  // 5) Mostrar con el símbolo de moneda
-  saldoEl.textContent = moneda + formatted;
-}
-
-
-
-    function init(){
-      // Referencias DOM
-      inpI=document.getElementById('inputIngresos'); btnI=document.getElementById('btnSetIngresos'); errI=document.getElementById('errorIngresos');
-      inpO=document.getElementById('inputOtrosIngresos'); btnO=document.getElementById('btnAddOtrosIngresos'); errO=document.getElementById('errorOtros');
-      saldoEl=document.getElementById('saldoRestante'); btnFin=document.getElementById('btnFinalizarMes');
-      btnAddCat=document.getElementById('btnAddCat'); btnDelCat=document.getElementById('btnDelCat');
-      subcatInput=document.getElementById('subcat'); obsInput=document.getElementById('obs'); 
-    
-      const fechaInput   = document.getElementById('fecha');
-      const montoInput   = document.getElementById('monto');
-      const btnGuardar   = document.getElementById('btnGuardar');
-      const subcat       = document.getElementById('subcat');
-      const btnAddSubcat = document.getElementById('btnAddSubcat');
-      const btnDelSubcat = document.getElementById('btnDelSubcat');
-
-
-      
-      loadData();
-      // Fijar fecha al día de hoy
-      fechaInput.value = new Date().toISOString().slice(0,10);
-      // ① Carga inicial de subcategorías
-const keyS = 'subcategorias';
-let subcategorias = JSON.parse(localStorage.getItem(keyS) || '[]');
-
-// ② Función para refrescar el combo de subcats
-function refreshSubcats() {
-  subcat.innerHTML = 
-    '<option disabled selected value="">– Opcional: Subcategoría –</option>' +
-    subcategorias.map(s => `<option value="${s}">${s}</option>`).join('');
-}
-refreshSubcats();
-
-// ③ Añadir nueva subcategoría
-btnAddSubcat.addEventListener('click', () => {
-  const nueva = prompt('Nombre de la nueva subcategoría:');
-  if (nueva && !subcategorias.includes(nueva.trim())) {
-    subcategorias.push(nueva.trim());
-    localStorage.setItem(keyS, JSON.stringify(subcategorias));
-    refreshSubcats();
-    subcat.value = nueva.trim();
-  }
-});
-
-// ④ Eliminar subcategoría seleccionada
-btnDelSubcat.addEventListener('click', () => {
-  const sel = subcat.value;
-  if (!sel) return alert('Selecciona primero una subcategoría para eliminar.');
-  if (confirm(`¿Eliminar subcategoría "${sel}"?`)) {
-    subcategorias = subcategorias.filter(s => s !== sel);
-    localStorage.setItem(keyS, JSON.stringify(subcategorias));
-    refreshSubcats();
-  }
-});
-
-
-      // Inicial UI
-      // Cargo el ingreso base guardado (0 si no hay) y lo formateo
-      inpI.value = formatRL( (ingresos * 100).toString() );inpO.value=formatRL(''); montoInput.value=formatRL('');
-      btnI.disabled=false; errI.textContent=''; errO.textContent='';
-      refreshCategories(); refreshGastos(); refreshMeses(); refreshSaldo();
-      montoInput.addEventListener('input', toggleGuardarGasto);
-      selCat.addEventListener('change', toggleGuardarGasto);
-      toggleGuardarGasto();
-      
-  // Si ya hay un ingreso guardado, mantenemos el input y el botón bloqueados
-    if (ingresos > 0) {
-      inpI.disabled = true;
-      btnI.disabled = true;
-    }
-
-      // ① Función para habilitar/deshabilitar Guardar Gasto
- function toggleGuardarGasto() {
-  // sólo true si ingreso base>0, monto válido y categoría seleccionada
-  const v = montoInput.value,
-        raw = v.replace(/\./g,'').replace(',','.'),
-        num = parseFloat(raw) || 0,
-        can = ingresos > 0 && num > 0 && selCat.value;
-  if (can) {
-    btnGuardar.classList.remove('btn-inactive');
-  } else {
-    btnGuardar.classList.add('btn-inactive');
-  }
-}
-
-
-      // Formateo dinámico derecha→izquierda
-      [inpI, inpO, montoInput].forEach(function(el){
-        el.addEventListener('input', function(e) {
-          e.target.value = formatRL(e.target.value);
-        });
+      // ─── 1) Habilitar/Deshabilitar botón "Finalizar mes" ───
+      function toggleBtnFin() {
+        const valor = parseFloat(ingresosInput.value);
+        if (!isNaN(valor) && valor > 0) {
+          btnFin.disabled = false;
+        } else {
+          btnFin.disabled = true;
+        }
+      }
+      // Al cambiar el valor de ingresos, actualizamos el botón y el display
+      ingresosInput.addEventListener('input', function () {
+        toggleBtnFin();
+        const v = parseFloat(ingresosInput.value);
+        totalIngresos = isNaN(v) ? 0 : v;
+        actualizarSaldoRestante();
       });
-// Toggle para habilitar “Guardar Ingresos” sólo si inpI tiene un valor > “0,00”
-function toggleSetIngresos() {
-  btnI.disabled = !inpI.value || inpI.value === '0,00';
-}
-inpI.addEventListener('input', toggleSetIngresos);
-// Estado inicial
-function toggleSetIngresos() {
-  // Sólo habilitamos el botón si NO hay ingresos guardados y el campo tiene valor válido
-  const v = inpI.value;
-  const hasIngresoGuardado = ingresos > 0;
-  btnI.disabled = hasIngresoGuardado || !v || v === '0,00';
-}
-refreshGastos();
+      // Inicializamos estado
+      toggleBtnFin();
+      saldoRestanteDisplay.textContent = formatearMoneda(0);
 
-// Toggle para habilitar “Agregar Otros ingresos”
-function toggleAddOtros() {
+      // ─── 2) Al hacer clic en "Guardar Ingreso" ───
+      btnGuardarIngreso.addEventListener('click', function (e) {
+        e.preventDefault();
+        const v = parseFloat(ingresosInput.value);
+        if (isNaN(v) || v <= 0) {
+          alert('Por favor ingresa un monto de ingreso válido (mayor a 0).');
+          ingresosInput.focus();
+          return;
+        }
+        totalIngresos = v;
+        actualizarSaldoRestante();
+        alert('Ingreso mensual guardado: ' + formatearMoneda(totalIngresos));
+      });
 
-  const can = ingresos > 0 && inpO.value && inpO.value !== '0,00';
-  if (can) {
-    btnO.classList.remove('btn-inactive');
-  } else {
-    btnO.classList.add('btn-inactive');
-  }
-}
+      // ─── 3) Lógica de "Finalizar Mes" ───
+      btnFin.addEventListener('click', function (e) {
+        e.preventDefault();
+        const saldoActual = parseFloat(ingresosInput.value);
+        if (isNaN(saldoActual) || saldoActual <= 0) {
+          alert('No puedes finalizar el mes sin antes definir un ingreso mensual mayor que 0.');
+          return;
+        }
 
+        // Calcular totales de gastos del mes actual
+        const totalGastosMes = listaGastos.reduce((acc, g) => acc + g.monto, 0);
+        const saldoFinal = totalIngresos - totalGastosMes;
 
-inpO.addEventListener('input', toggleAddOtros);
-// Estado inicial
-toggleAddOtros();
+        // Agregar fila al historial de meses
+        const filaMes = document.createElement('tr');
+        const fechaMes = new Date(); // Fecha actual
+        const mesYear = fechaMes.toLocaleString('es-AR', {
+          month: 'long',
+          year: 'numeric'
+        });
+        filaMes.innerHTML = `
+          <td>${mesYear}</td>
+          <td>${formatearMoneda(totalIngresos)}</td>
+          <td>${formatearMoneda(totalGastosMes)}</td>
+          <td>${formatearMoneda(saldoFinal)}</td>
+        `;
+        tablaMesesBody.appendChild(filaMes);
 
-      // Toggle para habilitar “Finalizar Mes” solo con ingreso base >0
-function toggleFinalizarMes() {
-  btnFin.disabled = !(parseFloat(ingresos) > 0);
-}
-inpI.addEventListener('input', toggleFinalizarMes);
-// Estado inicial (tras loadData y posible captura de ingresos previos)
-toggleFinalizarMes();
+        // Resetear variables para el próximo mes
+        totalIngresos = 0;
+        totalGastos = 0;
+        listaGastos = [];
+        ingresosInput.value = 0;
+        montoGastoInput.value = 0;
+        selectCategoria.selectedIndex = 0;
+        selectSubcategoria.innerHTML = '<option value="">-- Primero elige categoría --</option>';
+        selectSubcategoria.disabled = true;
+        tablaGastosBody.innerHTML = '';
+        actualizarSaldoRestante();
+        toggleBtnFin();
 
+        alert('Mes finalizado satisfactoriamente.');
+      });
 
-      
-// --- Guardar Ingresos sin validar formato, solo vacío ---
- btnGuardar.onclick = function() {
-   var raw = montoInput.value
-     .replace(/\./g,'')
-     .replace(',', '.');
-   var montoNum = parseFloat(raw) || 0;
+      // ─── 4) Función para actualizar el saldo restante (Ingresos – Gastos) ───
+      function actualizarSaldoRestante() {
+        const totalGastosMes = listaGastos.reduce((acc, g) => acc + g.monto, 0);
+        const saldo = totalIngresos - totalGastosMes;
+        saldoRestanteDisplay.textContent = formatearMoneda(
+          isNaN(saldo) ? 0 : saldo
+        );
+      }
 
-  // 1) Validar que sea mayor que 0
-  if (montoNum <= 0) {
-    alert('El monto del gasto debe ser mayor que 0.');
-    return;
-    }
+      // ─── 5) Manejo de categorías y subcategorías ───
+      selectCategoria.addEventListener('change', function () {
+        const cat = selectCategoria.value;
+        if (cat && categoriasConSub[cat]) {
+          // Vaciar y habilitar el combo de subcategoría
+          selectSubcategoria.disabled = false;
+          selectSubcategoria.innerHTML = '<option value="">-- Seleccionar subcategoría --</option>';
+          categoriasConSub[cat].forEach((sub) => {
+            const opt = document.createElement('option');
+            opt.value = sub;
+            opt.textContent = sub;
+            selectSubcategoria.appendChild(opt);
+          });
+        } else {
+          // Si no hay subcategorías o no se seleccionó nada
+          selectSubcategoria.innerHTML = '<option value="">-- Primero elige categoría --</option>';
+          selectSubcategoria.disabled = true;
+        }
+      });
 
-  if (!confirm('¿Desea guardar el monto ingresado?')) return;
+      // ─── 6) Al hacer clic en "Guardar Gasto" ───
+      btnGuardarGasto.addEventListener('click', function (e) {
+        e.preventDefault();
 
-  // 4) Guardar ingreso
-  ingresos = nTest;
-  localStorage.setItem(keyI, ingresos);
+        const categoria = selectCategoria.value;
+        const subcategoria = selectSubcategoria.value || '—';
+        const monto = parseFloat(montoGastoInput.value);
 
-  // Tras resetear ingresos, habilitamos el botón para el siguiente mes
-toggleSetIngresos();
+        if (!categoria) {
+          alert('Por favor, selecciona una categoría.');
+          selectCategoria.focus();
+          return;
+        }
+        if (isNaN(monto) || monto <= 0) {
+          alert('Por favor, ingresa un monto de gasto válido (mayor a 0).');
+          montoGastoInput.focus();
+          return;
+        }
+        if (monto > (totalIngresos - totalGastos)) {
+          alert('No tienes saldo suficiente para ese gasto.');
+          montoGastoInput.focus();
+          return;
+        }
 
+        // Registrar el gasto
+        const nuevaFecha = new Date().toLocaleDateString('es-AR');
+        const gastoObj = {
+          fecha: nuevaFecha,
+          categoria,
+          subcategoria,
+          monto
+        };
+        listaGastos.push(gastoObj);
+        totalGastos += monto;
 
-  // 5) Reiniciar gastos y otros
-  gastos = [];
-  otrosIngresos = [];
-  localStorage.setItem(keyG, JSON.stringify(gastos));
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
+        // Agregar fila a la tabla de gastos
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${gastoObj.fecha}</td>
+          <td>${gastoObj.categoria}</td>
+          <td>${gastoObj.subcategoria}</td>
+          <td>${formatearMoneda(gastoObj.monto)}</td>
+        `;
+        tablaGastosBody.appendChild(fila);
 
+        // Limpiar inputs de Gasto
+        selectCategoria.selectedIndex = 0;
+        selectSubcategoria.innerHTML = '<option value="">-- Primero elige categoría --</option>';
+        selectSubcategoria.disabled = true;
+        montoGastoInput.value = 0;
 
-  // 6) Actualizar UI
-  inpI.disabled = true;
-  btnI.disabled = true;
-  refreshGastos();
-  refreshMeses();
-  refreshSaldo();
-};
-// --- Guardar Ingresos sin validar formato, solo vacío ---
-btnI.onclick = function(){
-  var v = inpI.value.trim();
-  // 1) Validar no vacío y no 0
-  var rawTest = v.replace(/\./g,'').replace(',','.');
-  var nTest = parseFloat(rawTest) || 0;
-
-  // 2) Confirmación
-  if (!confirm('¿Desea guardar el monto ingresado?')) return;
-
-  // 4) Guardar ingreso
-  ingresos = nTest;
-  localStorage.setItem(keyI, ingresos);
-
-  // Tras resetear ingresos, habilitamos el botón para el siguiente mes
-toggleSetIngresos();
-
-
-  // 5) Reiniciar gastos y otros
-  gastos = [];
-  otrosIngresos = [];
-  localStorage.setItem(keyG, JSON.stringify(gastos));
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-
-
-  // 6) Actualizar UI
-  inpI.disabled = true;
-  btnI.disabled = true;
-  refreshGastos();
-  refreshMeses();
-  refreshSaldo();
-};
-
-
-// --- Agregar Otros ingresos sin validar formato, solo vacío ---
-btnO.onclick = function(){
-
-  var v = inpO.value.trim();
-  // 1) Validar no vacío y no 0
-  var rawTest = v.replace(/\./g,'').replace(',','.');
-  var nTest = parseFloat(rawTest) || 0;
-
-
-    // 1a) Validar que el ingreso base exista
-  if (ingresos <= 0) {
-    alert('Debes definir primero tus ingresos mensuales para agregar otros ingresos.');
-    return;
-  }
-  // 1b) Validar que nTest > 0
-  if (nTest <= 0) {
-    alert('El monto de otros ingresos debe ser mayor que 0.');
-    return;
-  }
-
-  
-  // 2) Confirmación
-  if (!confirm('¿Desea agregar este monto a Otros Ingresos?')) return;
-
-  // 4) Guardar otros ingresos
-  otrosIngresos.push(nTest);
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-
-  // 5) UI
-  inpO.value = formatRL('');
-  refreshSaldo();
-};
-
-
-
-
-btnGuardar.onclick = function() {
-  if (ingresos <= 0) {
-  alert('Debes definir primero tus ingresos mensuales para registrar un gasto.');
-  return;
-}
-  // 1) Convertir el valor formateado (e.g. "1.234,56") a número puro 1234.56
-  var raw = montoInput.value
-    .replace(/\./g, '')   // elimina puntos de miles
-    .replace(',', '.');   // convierte coma decimal a punto
-  var montoNum = parseFloat(raw) || 0;
-
-    // 1a) Validar montoNum > 0
-  if (montoNum <= 0) {
-    alert('El monto del gasto debe ser mayor que 0.');
-    return;
-  }
-
-  // 2) Crear el objeto gasto guardando un número (no string)
-  var g = {
-    fecha:     fechaInput.value,
-    monto:     montoNum,    // guardamos el número puro
-    categoria: selCat.value,
-    subcat:    subcatInput.value,
-    obs:       obsInput.value
-  };
-
-  // 3) Almacenar y refrescar UI
-  gastos.unshift(g);
-  localStorage.setItem(keyG, JSON.stringify(gastos));
-  refreshGastos();
-  refreshSaldo();
-
-  // 4) Limpiar campos y deshabilitar botón
-  montoInput.value      = formatRL('');  
-  subcatInput.value     = '';
-  obsInput.value        = '';
-  btnGuardar.disabled   = true;
-};
-
-
-      // Categorías
-      btnAddCat.onclick=function(){var n=prompt('Nueva categoría:')||'';n=n.trim();if(n&&categorias.indexOf(n)===-1){categorias.push(n);localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();selCat.value=n;}};
-      btnDelCat.onclick=function(){var c=selCat.value;if(c&&confirm('Eliminar '+c+'?')){categorias=categorias.filter(function(i){return i!==c;});localStorage.setItem(keyC,JSON.stringify(categorias));refreshCategories();}};
-
-      // Finalizar Mes
-btnFin.onclick = function() {
-
-    // 0) Validar que existan ingresos base
-  if (ingresos <= 0) {
-    alert('No puedes finalizar el mes sin antes definir un ingreso mensual mayor que 0.');
-    return;
-  }
-  
-  // 1) Confirmación
-  if (!confirm('¿Estás seguro que deseas finalizar el mes?')) {
-    return; // Cancela la acción si el usuario elige NO
-  }
-
-  // 2) Lógica de guardado en historial de meses
-  historial.unshift({
-    ingresos: ingresos,
-    otrosIngresos: otrosIngresos,
-    gastos: gastos,
-    fecha: new Date().toISOString()
-  });
-  localStorage.setItem(keyH, JSON.stringify(historial));
-
-  // 3) Reinicio de datos
-  gastos = [];
-  ingresos = 0;
-  otrosIngresos = [];
-  localStorage.setItem(keyG, JSON.stringify(gastos));
-  localStorage.setItem(keyI, ingresos);
-  localStorage.setItem(keyO, JSON.stringify(otrosIngresos));
-
-  // 4) Actualizar UI
-  inpI.disabled   = false;
-  btnI.disabled   = false;
-  inpI.value      = formatRL('');
-  errI.textContent= '';
-  inpO.value      = formatRL('');
-  refreshGastos();
-  refreshMeses();
-  refreshSaldo();
-};
-
-      // Borrar Mes
-      window.borrarMes=function(i){historial.splice(i,1);localStorage.setItem(keyH,JSON.stringify(historial));refreshMeses();};
-    }
-    if(document.readyState==='complete')init();else document.addEventListener('DOMContentLoaded',init);
-    if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
-  })();
+        // Actualizar saldo restante y estado del botón “Finalizar mes”
+        actualizarSaldoRestante();
+        toggleBtnFin();
+      });
+    });
   </script>
 </body>
 </html>
